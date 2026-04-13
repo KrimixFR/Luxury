@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:transparent;overflow:hidden;font-family:'VT323',monospace;}
+:root{--orange:#FF7700;--cyan:#00FFFF;--green:#39FF14;--bg:rgba(0,0,0,0.88);--border:rgba(255,119,0,0.5);}
+.hidden{display:none!important;}
+#overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;}
+#screen-select,#screen-create{background:var(--bg);border:1px solid var(--border);padding:36px 44px;min-width:380px;max-width:480px;text-align:center;}
+.title{font-size:52px;color:var(--orange);text-shadow:0 0 18px rgba(255,119,0,0.7);letter-spacing:8px;}
+.subtitle{font-size:44px;color:var(--cyan);text-shadow:0 0 12px rgba(0,255,255,0.5);letter-spacing:14px;margin-top:-8px;}
+.tagline{font-size:15px;color:rgba(255,255,255,0.5);letter-spacing:3px;margin-top:6px;text-transform:uppercase;}
+.sep{border:none;border-top:1px solid rgba(255,119,0,0.3);margin:20px 0;}
+/* Char list */
+.char-card{background:rgba(255,119,0,0.08);border:1px solid rgba(255,119,0,0.3);padding:14px 18px;margin-bottom:10px;cursor:pointer;text-align:left;transition:all 0.15s;}
+.char-card:hover{background:rgba(255,119,0,0.18);border-color:var(--orange);}
+.char-name{font-size:22px;color:#fff;}
+.char-info{font-size:14px;color:rgba(255,255,255,0.5);margin-top:3px;}
+/* Buttons */
+.btn-primary,.btn-cancel{width:100%;padding:10px;font-family:'VT323',monospace;font-size:20px;letter-spacing:2px;cursor:pointer;border:1px solid;margin-top:10px;text-transform:uppercase;transition:all 0.15s;}
+.btn-primary{background:rgba(57,255,20,0.1);color:var(--green);border-color:var(--green);}
+.btn-primary:hover{background:rgba(57,255,20,0.22);}
+.btn-cancel{background:rgba(255,0,51,0.1);color:#FF0033;border-color:#FF0033;}
+.btn-cancel:hover{background:rgba(255,0,51,0.22);}
+.btn-row{display:flex;gap:10px;}
+.btn-row .btn-primary,.btn-row .btn-cancel{margin-top:16px;}
+/* Fields */
+.field-group{text-align:left;margin-bottom:12px;}
+.field-group label{display:block;font-size:13px;color:rgba(255,255,255,0.4);letter-spacing:3px;margin-bottom:4px;}
+.field-group input,.field-group select{width:100%;background:#000;border:1px solid rgba(255,119,0,0.4);color:#fff;font-family:'Share Tech Mono',monospace;font-size:16px;padding:7px 10px;outline:none;}
+.field-group input:focus,.field-group select:focus{border-color:var(--orange);box-shadow:0 0 6px rgba(255,119,0,0.3);}
+.field-group select option{background:#111;}
