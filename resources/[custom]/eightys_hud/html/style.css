@@ -1,0 +1,326 @@
+/* ================================================================
+   LOS SANTOS 1987 — HUD Rétro Néon
+   Inspiré des terminaux phosphore et des néons de LA années 80
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+:root {
+    --neon-orange : #FF7700;
+    --neon-cyan   : #00FFFF;
+    --neon-red    : #FF0033;
+    --neon-green  : #39FF14;
+    --neon-yellow : #FFE900;
+    --bg-dark     : rgba(0, 0, 0, 0.75);
+    --bg-panel    : rgba(0, 0, 0, 0.65);
+    --border      : rgba(255, 119, 0, 0.6);
+    --font-main   : 'VT323', 'Share Tech Mono', monospace;
+    --glow-orange : 0 0 6px #FF7700, 0 0 12px rgba(255, 119, 0, 0.4);
+    --glow-cyan   : 0 0 6px #00FFFF, 0 0 12px rgba(0, 255, 255, 0.4);
+    --glow-red    : 0 0 6px #FF0033, 0 0 12px rgba(255, 0, 51, 0.5);
+    --glow-green  : 0 0 6px #39FF14, 0 0 12px rgba(57, 255, 20, 0.4);
+}
+
+* {
+    margin     : 0;
+    padding    : 0;
+    box-sizing : border-box;
+}
+
+body {
+    background : transparent;
+    overflow   : hidden;
+    font-family: var(--font-main);
+    font-size  : 16px;
+    color      : var(--neon-orange);
+    user-select: none;
+}
+
+/* ================================================================
+   CONTAINER PRINCIPAL
+   ================================================================ */
+#hud-container {
+    position   : fixed;
+    top        : 0;
+    left       : 0;
+    width      : 100vw;
+    height     : 100vh;
+    pointer-events: none;
+    transition : opacity 0.3s ease;
+}
+
+#hud-container.hidden {
+    opacity    : 0;
+    display    : none;
+}
+
+/* ================================================================
+   PANNEAU GAUCHE — Santé & Armure
+   ================================================================ */
+#panel-left {
+    position   : absolute;
+    bottom     : 60px;
+    left       : 20px;
+    display    : flex;
+    flex-direction: column;
+    gap        : 8px;
+}
+
+.stat-block {
+    display    : flex;
+    align-items: center;
+    gap        : 8px;
+    background : var(--bg-panel);
+    border     : 1px solid var(--border);
+    border-left: 3px solid var(--neon-orange);
+    padding    : 4px 10px 4px 8px;
+    min-width  : 180px;
+    position   : relative;
+    clip-path  : polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+
+.stat-label {
+    font-size  : 14px;
+    color      : rgba(255, 119, 0, 0.8);
+    min-width  : 50px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.stat-icon {
+    font-size  : 14px;
+}
+
+.stat-bar-track {
+    flex       : 1;
+    height     : 8px;
+    background : rgba(255, 255, 255, 0.1);
+    border     : 1px solid rgba(255, 119, 0, 0.3);
+    overflow   : hidden;
+}
+
+.stat-bar {
+    height     : 100%;
+    transition : width 0.3s ease, background-color 0.3s ease;
+}
+
+.health-bar {
+    background : var(--neon-orange);
+    box-shadow : var(--glow-orange);
+    width      : 100%;
+}
+
+.health-bar.danger {
+    background : var(--neon-red);
+    box-shadow : var(--glow-red);
+    animation  : pulse-red 0.8s infinite alternate;
+}
+
+.armor-bar {
+    background : var(--neon-cyan);
+    box-shadow : var(--glow-cyan);
+    width      : 0%;
+}
+
+.stat-value {
+    font-size  : 18px;
+    color      : var(--neon-orange);
+    text-shadow: var(--glow-orange);
+    min-width  : 35px;
+    text-align : right;
+}
+
+/* ================================================================
+   PANNEAU DROIT — Cash & Job
+   ================================================================ */
+#panel-right {
+    position   : absolute;
+    top        : 20px;
+    right      : 20px;
+    display    : flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap        : 6px;
+}
+
+.cash-block {
+    background : var(--bg-panel);
+    border     : 1px solid var(--border);
+    border-right: 3px solid var(--neon-green);
+    padding    : 6px 14px;
+    clip-path  : polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+    animation  : cash-flicker 4s infinite;
+}
+
+.cash-icon {
+    font-size  : 22px;
+    color      : var(--neon-green);
+    text-shadow: var(--glow-green);
+    margin-right: 4px;
+}
+
+.cash-value {
+    font-size  : 26px;
+    color      : var(--neon-green);
+    text-shadow: var(--glow-green);
+    letter-spacing: 2px;
+}
+
+.job-block {
+    background : rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.4);
+    padding    : 2px 10px;
+}
+
+.job-value {
+    font-size  : 14px;
+    color      : rgba(0, 255, 255, 0.8);
+    text-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ================================================================
+   PANNEAU BAS — Speedomètre & Rue
+   ================================================================ */
+#panel-bottom {
+    position   : absolute;
+    bottom     : 20px;
+    left       : 50%;
+    transform  : translateX(-50%);
+    display    : flex;
+    flex-direction: column;
+    align-items: center;
+    gap        : 4px;
+}
+
+#speedometer {
+    background : var(--bg-panel);
+    border     : 1px solid var(--border);
+    padding    : 6px 20px;
+    text-align : center;
+    clip-path  : polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+    min-width  : 100px;
+}
+
+#speedometer.hidden-speed {
+    display    : none;
+}
+
+.speed-value {
+    font-size  : 42px;
+    color      : var(--neon-orange);
+    text-shadow: var(--glow-orange);
+    line-height: 1;
+}
+
+.speed-unit {
+    font-size  : 12px;
+    color      : rgba(255, 119, 0, 0.6);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+#street-info {
+    font-size  : 14px;
+    color      : rgba(255, 255, 255, 0.7);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    max-width  : 400px;
+    text-align : center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow   : hidden;
+}
+
+/* ================================================================
+   WANTED STARS — Niveau de recherche
+   ================================================================ */
+#wanted-block {
+    position   : absolute;
+    bottom     : 20px;
+    right      : 20px;
+    text-align : center;
+    background : var(--bg-panel);
+    border     : 1px solid var(--border);
+    padding    : 6px 12px;
+    clip-path  : polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+}
+
+.wanted-label {
+    font-size  : 10px;
+    color      : rgba(255, 119, 0, 0.6);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+#wanted-stars {
+    display    : flex;
+    gap        : 4px;
+}
+
+.star {
+    font-size  : 18px;
+    color      : rgba(255, 119, 0, 0.2);
+    transition : color 0.2s, text-shadow 0.2s;
+}
+
+.star.active {
+    color      : var(--neon-yellow);
+    text-shadow: 0 0 8px #FFE900, 0 0 16px rgba(255, 233, 0, 0.5);
+    animation  : star-pulse 1s infinite alternate;
+}
+
+/* ================================================================
+   EFFET SCANLINES CRT
+   ================================================================ */
+#scanlines {
+    position   : fixed;
+    top        : 0;
+    left       : 0;
+    width      : 100%;
+    height     : 100%;
+    pointer-events: none;
+    background : repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.05) 2px,
+        rgba(0, 0, 0, 0.05) 4px
+    );
+    z-index    : 9999;
+    opacity    : 0.4;
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes pulse-red {
+    from { box-shadow: 0 0 4px #FF0033; }
+    to   { box-shadow: 0 0 14px #FF0033, 0 0 24px rgba(255, 0, 51, 0.6); }
+}
+
+@keyframes star-pulse {
+    from { text-shadow: 0 0 6px #FFE900; }
+    to   { text-shadow: 0 0 18px #FFE900, 0 0 30px rgba(255, 233, 0, 0.7); }
+}
+
+@keyframes cash-flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96%           { opacity: 0.85; }
+    97%           { opacity: 1; }
+    98%           { opacity: 0.9; }
+}
+
+/* ================================================================
+   MÉDIA — Écrans 1080p et plus
+   ================================================================ */
+@media (min-width: 1920px) {
+    .stat-block   { min-width: 220px; padding: 6px 14px 6px 10px; }
+    .stat-value   { font-size: 22px; }
+    .cash-value   { font-size: 32px; }
+    .speed-value  { font-size: 54px; }
+    #street-info  { font-size: 16px; }
+}

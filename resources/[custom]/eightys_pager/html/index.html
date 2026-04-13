@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Los Santos 1987 — Biper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="pager-overlay" class="hidden">
+    <div id="pager-device">
+
+        <!-- En-tête du biper -->
+        <div id="pager-header">
+            <div id="pager-brand">MOTOROLA ⬛ ADVISOR</div>
+            <div id="pager-time" class="blink">--:--</div>
+        </div>
+
+        <!-- Écran LCD -->
+        <div id="pager-screen">
+            <div id="screen-title">MESSAGES REÇUS</div>
+            <div id="message-list">
+                <div class="no-messages">Aucun message.</div>
+            </div>
+        </div>
+
+        <!-- Clavier -->
+        <div id="pager-controls">
+            <button id="btn-close" onclick="closePager()">FERMER</button>
+            <button id="btn-clear" onclick="clearAll()">EFFACER TOUT</button>
+            <button id="btn-compose" onclick="composePager()">NOUVEAU</button>
+        </div>
+
+        <!-- Zone de composition -->
+        <div id="compose-panel" class="hidden">
+            <div class="compose-label">DEST ID :</div>
+            <input type="number" id="input-dest" placeholder="ID joueur" min="1" max="999">
+            <div class="compose-label">MESSAGE :</div>
+            <input type="text"   id="input-msg"  placeholder="Votre message..." maxlength="120">
+            <div id="compose-buttons">
+                <button onclick="sendFromUI()">ENVOYER</button>
+                <button onclick="cancelCompose()">ANNULER</button>
+            </div>
+        </div>
+
+        <!-- Indicateur de signal -->
+        <div id="signal-bar">
+            <span class="dot active"></span>
+            <span class="dot active"></span>
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="brand-label">LS 1987</span>
+        </div>
+
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
