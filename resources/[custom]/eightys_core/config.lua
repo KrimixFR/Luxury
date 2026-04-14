@@ -313,42 +313,111 @@ Config.Drugs = {
 }
 
 -- ================================================================
--- VÉHICULES AUTORISÉS (années 80 uniquement)
+-- VÉHICULES AUTORISÉS — Los Angeles 1987
+-- Muscle cars, berlines, low-riders, utilitaires de l'époque
 -- ================================================================
 Config.AllowedVehicles = {
-    -- Muscle cars
+    -- Muscle cars (Camaro, Mustang, Charger, Firebird…)
     "vigero", "dominator", "gauntlet", "phoenix", "stallion", "sabre2",
-    -- Berlines / Sedans
+    "sabre", "blade", "ruiner", "ruiner2",
+    -- Berlines & sedans classiques
     "stratum", "washington", "premier", "greenwood",
-    -- Voitures de luxe 80s
-    "feltzer", "windsor",
-    -- Low-riders / Gang cars
-    "voodoo", "tornado", "buccaneer", "chino",
-    -- Pickup / Camionnettes
-    "bison", "bobcatxl", "picador", "sadler",
-    -- Police 80s
+    "primo", "primo2", "emperor", "emperor2", "emperor3",
+    "glendale", "glendale2", "peyote", "peyote2", "peyote3",
+    "regina",
+    -- Voitures de luxe 80s (Continental, Cadillac…)
+    "feltzer", "windsor", "stretch",
+    -- Low-riders / Gang cars (Impala, El Camino…)
+    "voodoo", "tornado", "tornado2", "tornado3", "tornado4", "tornado5", "tornado6",
+    "buccaneer", "buccaneer2", "chino", "chino2",
+    -- Pickup / Camionnettes (F-150, S-10…)
+    "bison", "bison2", "bison3", "bobcatxl", "picador", "sadler", "sadler2",
+    -- Police LAPD années 80
     "police", "police2", "police3", "policeold1", "policeold2",
     -- Ambulance & services
     "ambulance",
-    -- Taxis
+    -- Taxis (Checker Cab)
     "taxi",
-    -- Motos 80s
-    "daemon", "bagger",
-    -- Camions
-    "mule", "pounder", "phantom",
-    -- Bateaux (style Miami/LA)
-    "speeder", "squalo",
+    -- Motos 80s (Harley, Kawasaki…)
+    "daemon", "daemon2", "bagger", "zombiea", "zombieb",
+    "rat_bike", "faggio", "faggio2", "faggio3",
+    "sanchez", "sanchez2", "bf400",
+    -- Camions lourds
+    "mule", "mule2", "mule3", "pounder", "phantom",
+    -- Bateaux (style Miami Vice)
+    "speeder", "speeder2", "squalo", "jetmax", "tropic",
     -- Véhicules utilitaires
-    "flatbed", "towtruck",
+    "flatbed", "towtruck", "towtruck2",
+    "bus", "coach", "trash", "trash2",
+    -- Camionnettes de livraison (Ford Transit, Dodge Van…)
+    "speedo", "rumpo",
 }
 
--- Véhicules modernes interdits
+-- ================================================================
+-- VÉHICULES MODERNES INTERDITS
+-- Supprimés du trafic ambiant ET interdits aux joueurs
+-- Cette liste couvre TOUS les modèles post-1987 de GTA V
+-- ================================================================
 Config.BannedVehicles = {
-    "zentorno", "t20", "osiris", "adder", "entityxf",
-    "turismor", "nero", "fmj", "reaper", "tyrant",
+    -- ---- Super cars / Sports (normalement pas en trafic ambiant) ----
+    "zentorno", "t20", "osiris", "adder", "entityxf", "entity2",
+    "turismor", "nero", "nero2", "fmj", "reaper", "tyrant",
     "cyclone", "deveste", "emerus", "krieger", "thrax",
+    "vagner", "xa21", "x80proto", "tempesta", "visione",
+    "sc1", "prototipo", "italigtb", "italigtb2", "cheetah", "cheetah2",
+    "pariah", "formula", "formula2", "banshee2",
+    "elegy", "elegy2", "flashgt", "bestiagts", "autarch", "revolter",
+    "pfister811", "bullet", "le7b", "jester", "jester2", "jester3", "jester4",
+    "comet2", "comet3", "comet4", "comet5", "comet6",
+    "sultan", "sultan2", "sultan3", "rapidgt", "rapidgt2",
+    "lynx", "seven70", "stinger", "stingergt", "windsor2",
+    "massacro", "massacro2", "feltzer2", "tropos",
+    "carbonizzare", "vacca", "voltic", "voltic2",
+    "infernus", "infernus2",
+    -- ---- Berlines modernes (trafic ambiant) ----
+    "asterope", "fugitive", "jackal",
+    "asea", "asea2", "surge", "dilettante", "dilettante2",
+    "ingot", "oracle", "oracle2",
+    "cognoscenti", "cognoscenti2",
+    "schafter2", "schafter3", "schafter4", "schafter5", "schafter6",
+    "stafford", "limo2",
+    -- ---- Compactes modernes ----
+    "issi2", "issi3", "issi4", "issi5", "issi6", "issi7",
+    "panto", "prairie", "rhapsody",
+    "brioso", "brioso2", "brioso3",
+    "kanjo", "kanjo2",
+    -- ---- SUV modernes ----
+    "cavalcade", "cavalcade2",
+    "rocoto", "rebla", "serrano",
+    "baller", "baller2", "baller3", "baller4", "baller5", "baller6",
+    "granger", "huntley", "dubsta", "dubsta2",
+    "fq2", "novak", "contender",
+    "landstalker", "landstalker2", "radi",
+    -- ---- Camionnettes / Vans modernes ----
+    "minivan", "minivan2",
+    "youga", "youga2", "youga3",
+    "speedo2", "speedo3", "speedo4",
+    "rumpo2", "rumpo3",
+    -- ---- Motos modernes ----
+    "akuma", "bati", "bati2", "carbon", "defiler", "double",
+    "enduro", "hakuchou", "hakuchou2", "manchez", "manchez2",
+    "nemesis", "nightblade", "ruffian",
+    "shotaro", "sovereign", "vader", "vortex", "wolfsbane",
+    "avarus", "bagger", "chimera", "deathbike",
+    "hexer", "innovation", "lectro", "midi",
+    "oppressor", "oppressor2",
+    -- ---- Véhicules militaires / spéciaux ----
+    "insurgent", "insurgent2", "insurgent3",
+    "halftrack", "apc", "khanjali", "rhino", "barrage",
+    "scramjet", "deluxo", "vigilante",
+    -- ---- Avions / Hélicos (hors période ambiante) ----
     "lazer", "hydra", "nokota", "rogue",
-    "oppressor", "oppressor2", "scramjet",
+    "havok", "buzzard", "buzzard2",
+    -- ---- Bateaux modernes ----
+    "dinghy", "dinghy2", "dinghy3", "dinghy4",
+    "seashark", "seashark2", "seashark3",
+    "submersible", "submersible2",
+    "toro", "toro2",
 }
 
 -- ================================================================
