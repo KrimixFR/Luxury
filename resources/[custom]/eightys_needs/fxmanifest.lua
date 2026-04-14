@@ -1,0 +1,36 @@
+fx_version 'cerulean'
+game 'gta5'
+
+name        'eightys_needs'
+description 'Los Santos 1987 — Faim, soif & péremption des aliments'
+version     '1.0.0'
+author      'eightys_server'
+
+shared_scripts {
+    '@ox_lib/init.lua',
+    '@eightys_core/config.lua',
+}
+
+client_scripts {
+    'client/cl_main.lua',
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/sv_main.lua',
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/style.css',
+    'html/app.js',
+}
+
+dependencies {
+    'ox_lib',
+    'qb-core',
+    'oxmysql',
+    'eightys_core',
+}

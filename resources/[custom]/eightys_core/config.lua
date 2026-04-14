@@ -658,6 +658,148 @@ Config.GloveBox = {
 }
 
 -- ================================================================
+-- BESOINS — Faim & Soif avec péremption
+-- ================================================================
+Config.Needs = {
+    TickInterval       = 300000,  -- Décroissance toutes les 5 min (ms)
+    HungerDecay        = 8,       -- Points de faim perdus par tick (sur 100)
+    ThirstDecay        = 12,      -- Points de soif perdus par tick (soif baisse plus vite)
+    StarveThreshold    = 20,      -- En dessous : debuffs (vision floue, marche lente)
+    DehydrateThreshold = 20,
+    IllnessDuration    = 120,     -- Durée de maladie après bouffe périmée (secondes)
+
+    -- Épiceries sur la carte (1987 — Los Angeles)
+    Shops = {
+        { label = "Roy's Liquors",   coords = vector3(-47.4,  -1757.4, 29.4), blipColor = 2 },
+        { label = "24/7 Superette",  coords = vector3(24.5,   -1347.3, 29.5), blipColor = 2 },
+        { label = "Rob's Liquor",    coords = vector3(-2966.8, 390.5,  15.0), blipColor = 2 },
+        { label = "Billards & Deli", coords = vector3(1161.3,  2710.7, 38.2), blipColor = 2 },
+    },
+
+    -- Items alimentaires : valeur nutritive + durée avant péremption (secondes réelles)
+    -- expiresIn = 0 signifie que l'item n'expire pas
+    Foods = {
+        ["water"]     = { hunger = 0,  thirst = 35, expiresIn = 0        },  -- Eau en bouteille : n'expire pas
+        ["cola"]      = { hunger = 0,  thirst = 25, expiresIn = 7776000  },  -- 90 jours (canette)
+        ["beer"]      = { hunger = 5,  thirst = 20, expiresIn = 2592000  },  -- 30 jours
+        ["juice"]     = { hunger = 0,  thirst = 30, expiresIn = 604800   },  -- 7 jours
+        ["coffee"]    = { hunger = 5,  thirst = 25, expiresIn = 86400    },  -- 1 jour
+        ["candy"]     = { hunger = 5,  thirst = 0,  expiresIn = 15552000 },  -- 180 jours
+        ["chips"]     = { hunger = 10, thirst = 0,  expiresIn = 2592000  },  -- 30 jours
+        ["donut"]     = { hunger = 15, thirst = 0,  expiresIn = 259200   },  -- 3 jours
+        ["taco"]      = { hunger = 25, thirst = 0,  expiresIn = 86400    },  -- 1 jour
+        ["hotdog"]    = { hunger = 30, thirst = 0,  expiresIn = 86400    },  -- 1 jour
+        ["sandwich"]  = { hunger = 25, thirst = 5,  expiresIn = 172800   },  -- 2 jours
+    },
+
+    -- Catalogue de chaque épicerie (prix en $)
+    ShopItems = {
+        { name = "water",    price = 1  },
+        { name = "cola",     price = 2  },
+        { name = "beer",     price = 3  },
+        { name = "juice",    price = 3  },
+        { name = "coffee",   price = 3  },
+        { name = "candy",    price = 1  },
+        { name = "chips",    price = 2  },
+        { name = "donut",    price = 2  },
+        { name = "taco",     price = 4  },
+        { name = "hotdog",   price = 4  },
+        { name = "sandwich", price = 5  },
+    },
+}
+
+-- ================================================================
+-- CARBURANT — Stations essence
+-- ================================================================
+Config.Fuel = {
+    DefaultFuel     = 100.0,  -- Carburant au spawn (%)
+    MaxFuel         = 100.0,
+    ConsumptionRate = 0.35,   -- % consommé par seconde à vitesse max (adaptatif selon RPM)
+    PricePerUnit    = 2,      -- $ par unité
+    LowFuelAlert    = 15.0,   -- Alerte sous ce seuil
+
+    Stations = {
+        { label = "Globe Oil — Vespucci",  coords = vector3(-701.5,  -934.7,  19.2) },
+        { label = "Globe Oil — Downtown",  coords = vector3(265.8,   -1261.4, 29.3) },
+        { label = "LTD Gasoline — East",   coords = vector3(817.1,   -1028.4, 26.4) },
+        { label = "Globe Oil — Sandy",     coords = vector3(1784.8,  3330.2,  41.2) },
+        { label = "Globe Oil — Paleto",    coords = vector3(-93.4,   6419.6,  31.5) },
+    },
+}
+
+-- ================================================================
+-- LOGEMENTS — Appartements à louer
+-- ================================================================
+Config.Housing = {
+    StashSlots     = 20,
+    StashMaxWeight = 50000,
+
+    Apartments = {
+        {
+            id       = "apt_vespucci_01",
+            label    = "Studio — Vespucci Beach",
+            price    = 5000,    -- Achat/caution
+            rent     = 500,     -- Loyer hebdomadaire (temps réel)
+            exterior = vector3(-1138.0, -1520.0, 4.4),
+            interior = vector3(260.0, -1007.0, -99.0),
+            spawn    = vector3(260.3, -1007.0, -99.0),
+            heading  = 0.0,
+        },
+        {
+            id       = "apt_southls_01",
+            label    = "Appartement — South LS",
+            price    = 3500,
+            rent     = 350,
+            exterior = vector3(72.0, -1953.0, 21.1),
+            interior = vector3(346.0, -1012.0, -99.0),
+            spawn    = vector3(346.5, -1012.0, -99.0),
+            heading  = 0.0,
+        },
+        {
+            id       = "apt_strawberry_01",
+            label    = "Appartement — Strawberry",
+            price    = 4000,
+            rent     = 400,
+            exterior = vector3(148.5, -1698.0, 29.3),
+            interior = vector3(346.0, -1012.0, -99.0),
+            spawn    = vector3(346.5, -1012.0, -99.0),
+            heading  = 0.0,
+        },
+        {
+            id       = "apt_rockford_01",
+            label    = "Appartement — Rockford Hills",
+            price    = 15000,
+            rent     = 1500,
+            exterior = vector3(-768.0, 323.0, 85.7),
+            interior = vector3(-786.0, 315.0, 217.6),
+            spawn    = vector3(-785.5, 315.0, 217.6),
+            heading  = 180.0,
+        },
+    },
+}
+
+-- ================================================================
+-- CABINES TÉLÉPHONIQUES — Pas de portable en 1987
+-- ================================================================
+Config.Payphone = {
+    InteractDist = 2.5,   -- Distance pour afficher le texte d'aide
+    UseDist      = 1.5,   -- Distance pour utiliser
+    CallCost     = 1,     -- $ par appel (prélevé au demandeur)
+
+    -- Emplacements des cabines sur la carte
+    Locations = {
+        vector3(-101.4, -1304.0, 29.4),
+        vector3(127.6,  -1291.4, 29.2),
+        vector3(-547.3, -188.1,  38.2),
+        vector3(1699.5, 4928.1,  42.1),
+        vector3(-1223.0, -340.4, 37.8),
+        vector3(373.4,   326.9,  103.6),
+        vector3(-3.0,    -1440.0, 30.5),
+        vector3(-558.2,  -1570.0, 27.2),
+    },
+}
+
+-- ================================================================
 -- ÉCONOMIE — TVA & Gouvernement
 -- ================================================================
 Config.Economy = {
