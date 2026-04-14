@@ -101,6 +101,22 @@ local function isBusinessBlocked(acc)
 end
 
 -- ================================================================
+-- CALLBACK — Solde frais (appelé à l'ouverture du guichet)
+-- ================================================================
+QBCore.Functions.CreateCallback('eightys_banking:getAccount', function(src, cb)
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then cb(nil) return end
+    local acc = ensureAccount(Player.PlayerData.citizenid)
+    cb({
+        balance = acc.balance,
+        hasCard = acc.card_number ~= nil,
+        hasPin  = acc.pin ~= nil,
+        last4   = acc.card_number and acc.card_number:sub(-4) or nil,
+        blocked = isBlocked(acc),
+    })
+end)
+
+-- ================================================================
 -- SYNC AU LOGIN
 -- ================================================================
 RegisterNetEvent('QBCore:Server:PlayerLoaded', function()

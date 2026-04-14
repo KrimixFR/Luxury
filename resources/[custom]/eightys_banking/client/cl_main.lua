@@ -157,6 +157,14 @@ CreateThread(function()
 end)
 
 function openBranchMenu(branchLabel)
+    -- Solde frais depuis la DB (découverte d'un éventuel vol de carte)
+    QBCore.Functions.TriggerCallback('eightys_banking:getAccount', function(data)
+        if data then myAccount = data end
+        _buildBranchMenu(branchLabel)
+    end)
+end
+
+function _buildBranchMenu(branchLabel)
     local pd      = QBCore.Functions.GetPlayerData()
     local job     = pd and pd.job
     local options = {}
