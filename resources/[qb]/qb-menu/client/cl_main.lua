@@ -16,4 +16,4 @@ function QBCore.UI.Menu.Open(type, ns, name, cb, close, title, options)
     lib.registerContext({ id = 'qbmenu_' .. (name or 'menu'), title = title or name or 'Menu', options = opts })
     lib.showContext('qbmenu_' .. (name or 'menu'))
 end
-function QBCore.UI.Menu.Close() lib.hideContext and lib.hideContext() end
+function QBCore.UI.Menu.Close() if lib.hideContext then lib.hideContext() end end

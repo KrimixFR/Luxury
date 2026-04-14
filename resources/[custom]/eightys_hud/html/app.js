@@ -180,19 +180,12 @@ window.addEventListener('message', function(event) {
 // INITIALISATION
 // ================================================================
 document.addEventListener('DOMContentLoaded', function() {
-    // Signaler que le NUI est prêt
-    fetch(`https://${GetParentResourceName()}/hudReady`, {
+    let resName = 'eightys_hud';
+    try { resName = GetParentResourceName(); } catch(e) {}
+
+    fetch(`https://${resName}/hudReady`, {
         method : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body   : JSON.stringify({}),
-    }).catch(() => {
-        // Fonction native FiveM — silencieux si hors contexte
-    });
+    }).catch(() => {});
 });
-
-// Fallback : compatibilité navigateur hors FiveM (dev)
-function GetParentResourceName() {
-    return typeof window.GetParentResourceName === 'function'
-        ? window.GetParentResourceName()
-        : 'eightys_hud';
-}
