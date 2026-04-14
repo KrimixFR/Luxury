@@ -7,9 +7,55 @@ local QBCore = exports['qb-core']:GetCoreObject()
 
 -- Index des cassettes par name
 local cassetteIndex = {}
+-- Index des audioFile autorisés (validation serveur)
+local validAudioFiles = {}
 for _, c in ipairs(Config.Radio.Cassettes) do
-    cassetteIndex[c.name] = c
+    cassetteIndex[c.name]        = c
+    if c.audioFile then validAudioFiles[c.audioFile] = true end
 end
+
+-- ================================================================
+-- DIFFUSION RADIO — Volume ambiant
+-- activeBroadcasts[src] = { netId, audioFile, volume }
+-- ================================================================
+local activeBroadcasts = {}
+
+local function syncBroadcasts()
+    TriggerClientEvent('eightys_radio:client:syncBroadcasts', -1, activeBroadcasts)
+end
+
+-- Joueur démarre / met à jour sa diffusion
+RegisterNetEvent('eightys_radio:server:updateBroadcast', function(netId, audioFile, volume)
+    local src = source
+    -- Validation
+    if not validAudioFiles[audioFile] then return end
+    volume = math.max(0.0, math.min(1.0, tonumber(volume) or Config.Radio.RadioDefaultVolume))
+    activeBroadcasts[src] = { netId = netId, audioFile = audioFile, volume = volume }
+    syncBroadcasts()
+end)
+
+-- Joueur arrête sa diffusion
+RegisterNetEvent('eightys_radio:server:stopBroadcast', function()
+    local src = source
+    if activeBroadcasts[src] then
+        activeBroadcasts[src] = nil
+        syncBroadcasts()
+    end
+end)
+
+-- Nouveau joueur demande l'état courant
+RegisterNetEvent('eightys_radio:server:requestSync', function()
+    local src = source
+    TriggerClientEvent('eightys_radio:client:syncBroadcasts', src, activeBroadcasts)
+end)
+
+AddEventHandler('playerDropped', function()
+    local src = source
+    if activeBroadcasts[src] then
+        activeBroadcasts[src] = nil
+        syncBroadcasts()
+    end
+end)
 
 -- ================================================================
 -- INITIALISATION BASE DE DONNÉES

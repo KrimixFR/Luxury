@@ -12,6 +12,13 @@ local deckOpen    = false
 -- Cassette actuellement insérée dans ce véhicule { name, label, audioFile, color }
 local insertedCassette = nil
 
+-- Volume local du joueur (0.0 – 1.0)
+local localVolume = Config.Radio.RadioDefaultVolume or 0.8
+
+-- Diffusions radio des autres joueurs reçues du serveur
+-- nearbyBroadcasts[serverId] = { netId, audioFile, volume }
+local nearbyBroadcasts = {}
+
 -- Index des cassettes par name pour lookup rapide
 local cassetteIndex = {}
 for _, c in ipairs(Config.Radio.Cassettes) do
@@ -28,20 +35,18 @@ local function muteRadio(veh)
 end
 
 -- Désactiver la radio sur le véhicule courant toutes les 2s
--- (GTA peut la réactiver après certains events)
 CreateThread(function()
     while true do
         Wait(2000)
         local ped = PlayerPedId()
         local veh = GetVehiclePedIsIn(ped, false)
         if veh ~= 0 then
-            -- Le son vient du NUI (MP3) — toujours couper la radio GTA
             muteRadio(veh)
         end
     end
 end)
 
--- Détecter l'entrée dans un véhicule
+-- Détecter l'entrée / sortie de véhicule
 CreateThread(function()
     local lastVeh = 0
     while true do
@@ -50,22 +55,64 @@ CreateThread(function()
         local veh = GetVehiclePedIsIn(ped, false)
 
         if veh ~= 0 and veh ~= lastVeh then
-            -- Nouveau véhicule : couper la radio par défaut
             muteRadio(veh)
-            -- Éjecter la cassette du véhicule précédent (chaque voiture a son propre lecteur)
+            -- Éjecter la cassette du véhicule précédent
             if insertedCassette then
                 insertedCassette = nil
+                TriggerServerEvent('eightys_radio:server:stopBroadcast')
                 if deckOpen then updateDeckNUI() end
             end
         end
 
         if veh == 0 and lastVeh ~= 0 then
-            -- On est sorti du véhicule
+            -- Sorti du véhicule : stopper la diffusion
             insertedCassette = nil
+            TriggerServerEvent('eightys_radio:server:stopBroadcast')
         end
 
         currentVeh = veh
         lastVeh    = veh
+    end
+end)
+
+-- ================================================================
+-- AUDIO AMBIANT — Son des voitures proches
+-- ================================================================
+CreateThread(function()
+    while true do
+        Wait(500)
+        local ped       = PlayerPedId()
+        local coords    = GetEntityCoords(ped)
+        local maxDist   = Config.Radio.RadioMaxDist or 30.0
+        local myId      = GetPlayerServerId(PlayerId())
+
+        local bestVol   = 0.0
+        local bestFile  = nil
+
+        for pid, broadcast in pairs(nearbyBroadcasts) do
+            -- Ne pas se jouer sa propre diffusion en ambiant
+            if tonumber(pid) ~= myId then
+                local veh = NetworkGetEntityFromNetworkId(broadcast.netId)
+                if DoesEntityExist(veh) then
+                    local dist = #(coords - GetEntityCoords(veh))
+                    if dist < maxDist then
+                        -- Falloff linéaire : plein volume à 0m, silence à maxDist
+                        local falloff = 1.0 - (dist / maxDist)
+                        local effVol  = broadcast.volume * falloff
+                        if effVol > bestVol then
+                            bestVol  = effVol
+                            bestFile = broadcast.audioFile
+                        end
+                    end
+                end
+            end
+        end
+
+        if bestFile and bestVol > 0.02 then
+            SendNUIMessage({ type = 'AMBIENT_PLAY', audioFile = bestFile, volume = bestVol })
+        else
+            SendNUIMessage({ type = 'AMBIENT_STOP' })
+        end
     end
 end)
 
@@ -97,6 +144,7 @@ function updateDeckNUI()
         cassettes = getCassettesInInventory(),
         inserted  = insertedCassette,
         playing   = insertedCassette ~= nil,
+        volume    = localVolume,
     })
 end
 
@@ -123,6 +171,22 @@ RegisterNUICallback('closeDeck', function(_, cb)
     cb('ok')
 end)
 
+-- Régler le volume (appelé depuis le NUI)
+RegisterNUICallback('setVolume', function(data, cb)
+    local vol = tonumber(data.volume)
+    if not vol then cb('err'); return end
+    vol         = math.max(0.0, math.min(1.0, vol))
+    localVolume = vol
+    -- Appliquer immédiatement au lecteur local
+    SendNUIMessage({ type = 'SET_VOLUME', volume = vol })
+    -- Diffuser la mise à jour aux joueurs proches
+    if insertedCassette and currentVeh ~= 0 then
+        local netId = NetworkGetNetworkIdFromEntity(currentVeh)
+        TriggerServerEvent('eightys_radio:server:updateBroadcast', netId, insertedCassette.audioFile, vol)
+    end
+    cb('ok')
+end)
+
 -- Insérer une cassette (appelé depuis le NUI)
 RegisterNUICallback('insertCassette', function(data, cb)
     local cassette = cassetteIndex[data.name]
@@ -146,9 +210,12 @@ RegisterNUICallback('insertCassette', function(data, cb)
 
     insertedCassette = cassette
 
-    -- Couper la radio GTA (le son vient du NUI)
+    -- Couper la radio GTA
     if currentVeh ~= 0 then
         muteRadio(currentVeh)
+        -- Démarrer la diffusion aux joueurs proches
+        local netId = NetworkGetNetworkIdFromEntity(currentVeh)
+        TriggerServerEvent('eightys_radio:server:updateBroadcast', netId, cassette.audioFile, localVolume)
     end
 
     updateDeckNUI()
@@ -159,6 +226,7 @@ end)
 RegisterNUICallback('ejectCassette', function(_, cb)
     insertedCassette = nil
     if currentVeh ~= 0 then muteRadio(currentVeh) end
+    TriggerServerEvent('eightys_radio:server:stopBroadcast')
     updateDeckNUI()
     cb('ok')
 end)
@@ -188,6 +256,9 @@ CreateThread(function()
     -- Attendre que le joueur soit chargé
     while not LocalPlayer.state.isLoggedIn do Wait(1000) end
 
+    -- Demander l'état courant des diffusions
+    TriggerServerEvent('eightys_radio:server:requestSync')
+
     -- Créer le blip du disquaire
     local b = Config.Radio.ShopBlip
     local sp = Config.Radio.ShopLocation
@@ -213,7 +284,6 @@ CreateThread(function()
 
         if #(coords - sp) < 10.0 then
             sleep = 0
-            -- Afficher le texte d'aide
             local onScreen, sx, sy = World3dToScreen2d(sp.x, sp.y, sp.z + 1.0)
             if onScreen then
                 SetTextScale(0.35, 0.35)
@@ -262,7 +332,6 @@ function openShopMenu()
         })
     end
 
-    -- Si le joueur est propriétaire du disquaire
     local pd = QBCore.Functions.GetPlayerData()
     if pd and pd.job and pd.job.name == Config.Radio.ShopJob then
         table.insert(options, { title = '── Gestion du disquaire ──', disabled = true })
@@ -286,6 +355,10 @@ end
 -- ================================================================
 -- EVENTS SERVEUR → CLIENT
 -- ================================================================
+RegisterNetEvent('eightys_radio:client:syncBroadcasts', function(broadcasts)
+    nearbyBroadcasts = broadcasts or {}
+end)
+
 RegisterNetEvent('eightys_radio:client:buySuccess', function(cassetteName)
     local c = cassetteIndex[cassetteName]
     if c then

@@ -600,6 +600,10 @@ Config.Radio = {
     ShopJob       = "recordshop",
     ShopInteract  = 2.0,     -- Distance interaction (m)
     CommissionPct = 0.80,    -- 80% des ventes vont à la caisse du propriétaire
+
+    -- Volume & son ambiant
+    RadioDefaultVolume = 0.8,   -- Volume par défaut (0.0 – 1.0)
+    RadioMaxDist       = 30.0,  -- Distance max pour entendre une radio depuis l'extérieur (mètres)
 }
 
 -- ================================================================
