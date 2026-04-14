@@ -67,6 +67,69 @@ RegisterNetEvent('eightys_police:server:toggleCuff', function(targetSrc)
 end)
 
 -- ================================================================
+-- CALLBACK — État menottes d'un joueur (pour le menu ALT)
+-- ================================================================
+QBCore.Functions.CreateCallback('eightys_police:getCuffState', function(source, cb, targetSrc)
+    -- Renvoie true si le joueur est actuellement menotté
+    cb(cuffed[tonumber(targetSrc)] ~= nil)
+end)
+
+-- ================================================================
+-- FOUILLE D'UN SUSPECT
+-- ================================================================
+local illegalItems = {
+    crack_baggie  = "Crack",
+    coke_baggie   = "Cocaïne",
+    weed_baggie   = "Weed",
+    pcp_baggie    = "PCP",
+    weapon_pistol         = "Pistolet",
+    weapon_combatpistol   = "Pistolet de combat",
+    weapon_smg            = "Mitraillette",
+    weapon_carbinerifle   = "Fusil d'assaut",
+    weapon_pumpshotgun    = "Fusil à pompe",
+    weapon_knife          = "Couteau",
+}
+
+RegisterNetEvent('eightys_police:server:searchPlayer', function(targetSrc)
+    local src     = source
+    local Officer = QBCore.Functions.GetPlayer(src)
+    local Target  = QBCore.Functions.GetPlayer(tonumber(targetSrc))
+    if not Officer or not Target then return end
+
+    local jobName = Officer.PlayerData.job and Officer.PlayerData.job.name
+    if jobName ~= "police" and jobName ~= "vicesquad" then return end
+
+    local found = {}
+    local items = Target.PlayerData.items or {}
+    for itemName, item in pairs(items) do
+        if illegalItems[itemName] and (item.amount or 0) > 0 then
+            table.insert(found, string.format("%s ×%d", illegalItems[itemName], item.amount))
+        end
+    end
+
+    local tName = string.format("%s %s",
+        Target.PlayerData.charinfo.firstname or "?",
+        Target.PlayerData.charinfo.lastname  or "?")
+
+    if #found > 0 then
+        TriggerClientEvent('ox_lib:notify', src, {
+            title       = "Fouille — " .. tName,
+            description = "Objets trouvés :\n" .. table.concat(found, "\n"),
+            type        = "error",
+            duration    = 10000,
+        })
+        print(string.format("[POLICE] Fouille de %d par %d : %s", tonumber(targetSrc), src, table.concat(found, ", ")))
+    else
+        TriggerClientEvent('ox_lib:notify', src, {
+            title       = "Fouille — " .. tName,
+            description = "Aucun objet illégal trouvé.",
+            type        = "success",
+            duration    = 5000,
+        })
+    end
+end)
+
+-- ================================================================
 -- LIBÉRER DES MENOTTES (event direct, utilisé par arrestPlayer)
 -- ================================================================
 RegisterNetEvent('eightys_police:server:uncuffPlayer', function(targetSrc)

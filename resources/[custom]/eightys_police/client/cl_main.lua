@@ -1,58 +1,41 @@
 -- ================================================================
 -- eightys_police — Client
 -- LAPD & Vice Squad — Los Angeles 1987
+-- Toutes les interactions via menu ALT (plus de commandes texte)
 -- ================================================================
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
-local isPolice     = false
-local isViceSquad  = false
-local isCuffed     = false
-local isEscorted   = false
-local escortTarget = nil
-
--- Thread UNIQUE et persistant pour les contrôles menottes
--- (évite de créer un nouveau thread à chaque menottage)
-CreateThread(function()
-    while true do
-        if isCuffed then
-            DisableControlAction(0, 24, true)  -- Attaque
-            DisableControlAction(0, 25, true)  -- Corps à corps
-            DisableControlAction(0, 47, true)  -- Arme
-            DisableControlAction(0, 58, true)  -- Snipe
-            DisableControlAction(0, 44, true)  -- Cover
-            DisableControlAction(0, 37, true)  -- Enter vehicle
-            Wait(0)
-        else
-            Wait(500)  -- Veille légère quand pas menotté
-        end
-    end
-end)
+local isPolice    = false
+local isViceSquad = false
+local isCuffed    = false
+local radarActive = false
+local menuOpen    = false   -- verrou pour éviter les doubles ouvertures
 
 -- ================================================================
--- VÉRIFICATION DU JOB
+-- JOB — Suivi en temps réel
 -- ================================================================
-local function checkJob()
-    local playerData = QBCore.Functions.GetPlayerData()
-    if playerData and playerData.job then
-        isPolice    = playerData.job.name == "police"
-        isViceSquad = playerData.job.name == "vicesquad"
+local function refreshJob()
+    local pd = QBCore.Functions.GetPlayerData()
+    if pd and pd.job then
+        isPolice    = pd.job.name == "police"
+        isViceSquad = pd.job.name == "vicesquad"
     end
 end
 
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     Wait(500)
-    checkJob()
+    refreshJob()
     setupPoliceBlips()
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-    isPolice    = JobInfo.name == "police"
-    isViceSquad = JobInfo.name == "vicesquad"
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(job)
+    isPolice    = job.name == "police"
+    isViceSquad = job.name == "vicesquad"
 end)
 
 -- ================================================================
--- BLIPS POLICE
+-- BLIPS
 -- ================================================================
 local function setupPoliceBlips()
     for _, loc in ipairs(Config.Police.Locations) do
@@ -68,26 +51,24 @@ local function setupPoliceBlips()
 end
 
 -- ================================================================
--- TEXTE 3D
+-- TEXTE 3D — indicateur visuel sur les zones
 -- ================================================================
 local function drawText3D(x, y, z, text)
-    local onScreen, _x, _y = World3dToScreen2d(x, y, z)
-    if onScreen then
-        SetTextScale(0.35, 0.35)
-        SetTextFont(4)
-        SetTextProportional(1)
-        SetTextColour(100, 180, 255, 215)
-        SetTextEntry("STRING")
-        SetTextCentre(true)
-        AddTextComponentString(text)
-        DrawText(_x, _y)
-        local factor = string.len(text) / 370
-        DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 0, 0, 0, 75)
-    end
+    local onScreen, sx, sy = World3dToScreen2d(x, y, z)
+    if not onScreen then return end
+    SetTextScale(0.35, 0.35)
+    SetTextFont(4)
+    SetTextProportional(1)
+    SetTextColour(100, 180, 255, 215)
+    SetTextEntry("STRING")
+    SetTextCentre(true)
+    AddTextComponentString(text)
+    DrawText(sx, sy)
+    DrawRect(sx, sy + 0.0125, 0.015 + string.len(text) / 370, 0.03, 0, 0, 0, 75)
 end
 
 -- ================================================================
--- ANIMATIONS MENOTTES — Helpers
+-- ANIMATIONS — Helpers
 -- ================================================================
 local function loadAnim(dict)
     RequestAnimDict(dict)
@@ -95,48 +76,54 @@ local function loadAnim(dict)
     while not HasAnimDictLoaded(dict) do
         Wait(10)
         t = t + 10
-        if t > 3000 then break end  -- timeout 3s
+        if t >= 3000 then break end
     end
 end
 
--- Animation flic : geste de menottage (2 s, non-loopé)
+-- Flic : geste menottage (tend les mains en avant, 2.2s)
 local function playCuffAnim(ped)
     loadAnim("mp_arresting")
-    -- a_uncuff : le personnage se penche légèrement en avant,
-    -- mains tendues — visuellement cohérent pour "appliquer des menottes"
     TaskPlayAnim(ped, "mp_arresting", "a_uncuff", 4.0, -4.0, 2200, 0, 0, false, false, false)
 end
 
--- Animation cible : transition mains levées → mains dans le dos
+-- Cible : mains levées → mains dans le dos
 local function playBeingCuffedAnim(ped)
-    -- Phase 1 : mains levées (1,2 s) — le suspect se rend
     loadAnim("random@arrests")
     if HasAnimDictLoaded("random@arrests") then
         TaskPlayAnim(ped, "random@arrests", "idle_2_hands_up", 8.0, -8.0, 1200, 0, 0, false, false, false)
         Wait(1200)
     end
-    -- Phase 2 : menottes dans le dos (persistant)
     loadAnim("mp_arresting")
     SetEnableHandcuffs(ped, true)
     TaskPlayAnim(ped, "mp_arresting", "idle", 8.0, -8.0, -1, 49, 0, false, false, false)
 end
 
 -- ================================================================
--- MENOTTES — Cuff / Uncuff (reçu du serveur)
+-- THREAD — Blocage des contrôles quand menotté
+-- ================================================================
+CreateThread(function()
+    while true do
+        if isCuffed then
+            DisableControlAction(0, 24, true)  -- Attaque
+            DisableControlAction(0, 25, true)  -- Corps à corps
+            DisableControlAction(0, 47, true)  -- Arme
+            DisableControlAction(0, 58, true)  -- Snipe
+            DisableControlAction(0, 44, true)  -- Cover
+            DisableControlAction(0, 37, true)  -- Enter vehicle
+            Wait(0)
+        else
+            Wait(500)
+        end
+    end
+end)
+
+-- ================================================================
+-- EVENTS REÇUS DU SERVEUR
 -- ================================================================
 RegisterNetEvent('eightys_police:client:cuffPlayer', function()
     isCuffed = true
-    local ped = PlayerPedId()
-    CreateThread(function()
-        playBeingCuffedAnim(ped)
-    end)
-    lib.notify({
-        title       = "Menottes",
-        description = "Vous êtes menottés. Restez calme.",
-        type        = "error",
-        duration    = 5000,
-    })
-    -- Le thread persistant en haut du fichier gère DisableControlAction
+    CreateThread(function() playBeingCuffedAnim(PlayerPedId()) end)
+    lib.notify({ title = "Menottes", description = "Vous êtes menottés. Restez calme.", type = "error", duration = 5000 })
 end)
 
 RegisterNetEvent('eightys_police:client:uncuffPlayer', function()
@@ -145,207 +132,259 @@ RegisterNetEvent('eightys_police:client:uncuffPlayer', function()
     SetEnableHandcuffs(ped, false)
     StopAnimTask(ped, "mp_arresting", "idle", 1.0)
     ClearPedTasks(ped)
-    lib.notify({
-        title       = "Libéré",
-        description = "Vous avez été libéré des menottes.",
-        type        = "success",
-        duration    = 3000,
-    })
+    lib.notify({ title = "Libéré", description = "Vous avez été libéré des menottes.", type = "success", duration = 3000 })
 end)
 
--- ================================================================
--- TÉLÉPORTATION EN PRISON
--- ================================================================
 RegisterNetEvent('eightys_police:client:sendToJail', function(sentence)
-    local ped = PlayerPedId()
+    local ped        = PlayerPedId()
     local jailCoords = Config.Police.JailLocation
-
-    -- Téléporter au pénitencier
-    SetEntityCoords(ped, jailCoords.x, jailCoords.y, jailCoords.z, false, false, false, true)
-    SetEntityHeading(ped, jailCoords.w)
-
     isCuffed = false
     SetEnableHandcuffs(ped, false)
-
+    SetEntityCoords(ped, jailCoords.x, jailCoords.y, jailCoords.z, false, false, false, true)
+    SetEntityHeading(ped, jailCoords.w)
     lib.notify({
         title       = "Arrêté",
-        description = string.format("Vous avez été envoyé au pénitencier pour %d minutes.", math.floor(sentence / 60)),
-        type        = "error",
-        duration    = 8000,
+        description = string.format("Pénitencier — %d minute(s).", math.floor(sentence / 60)),
+        type        = "error", duration = 8000,
     })
-
-    -- Timer de libération
     CreateThread(function()
         Wait(sentence * 1000)
-        local releaseCoords = Config.Police.Locations[1].coords
-        SetEntityCoords(ped, releaseCoords.x, releaseCoords.y, releaseCoords.z, false, false, false, true)
-        lib.notify({
-            title       = "Libéré",
-            description = "Vous avez purgé votre peine. Restez dans le droit chemin.",
-            type        = "success",
-            duration    = 5000,
-        })
+        local rel = Config.Police.Locations[1].coords
+        SetEntityCoords(ped, rel.x, rel.y, rel.z, false, false, false, true)
+        lib.notify({ title = "Libéré", description = "Peine purgée. Bonne conduite.", type = "success", duration = 5000 })
     end)
 end)
 
 -- ================================================================
--- COMMANDES POLICE UNIQUEMENT
+-- MENU ALT — Sous-menu joueur (avec état menottes depuis serveur)
 -- ================================================================
+local function openPlayerActions(player)
+    -- Récupérer l'état menottes depuis le serveur avant d'afficher le menu
+    QBCore.Functions.TriggerCallback('eightys_police:getCuffState', function(isTargetCuffed)
+        local ped     = PlayerPedId()
+        local actions = {}
 
--- /menottes — Menotter / démenotter le joueur le plus proche
-local isCuffing = false  -- verrou anti-spam
-
-RegisterCommand('menottes', function()
-    if not isPolice and not isViceSquad then
-        lib.notify({ title = "Accès refusé", description = "Réservé aux forces de l'ordre.", type = "error" })
-        return
-    end
-    if isCuffing then return end  -- empêcher le double-clic
-
-    local ped     = PlayerPedId()
-    local coords  = GetEntityCoords(ped)
-    local maxDist = Config.Police.CuffDistance
-    local target  = nil
-    local minDist = maxDist + 1
-
-    -- Trouver le joueur le plus proche
-    for _, playerId in ipairs(GetActivePlayers()) do
-        if playerId ~= PlayerId() then
-            local dist = #(coords - GetEntityCoords(GetPlayerPed(playerId)))
-            if dist < minDist then
-                minDist = dist
-                target  = playerId
-            end
+        -- ---- Menotter / Démenotter ----
+        if isTargetCuffed then
+            table.insert(actions, {
+                title       = "Retirer les menottes",
+                icon        = "unlock",
+                description = "Libérer le suspect",
+                onSelect    = function()
+                    CreateThread(function()
+                        playCuffAnim(ped)
+                        Wait(2200)
+                        TriggerServerEvent('eightys_police:server:toggleCuff', player.srvId)
+                        menuOpen = false
+                    end)
+                end,
+            })
+        else
+            table.insert(actions, {
+                title       = "Menotter",
+                icon        = "link",
+                description = "Passer les menottes au suspect",
+                onSelect    = function()
+                    CreateThread(function()
+                        -- Orienter le flic vers la cible
+                        local tc = GetEntityCoords(GetPlayerPed(player.localId))
+                        TaskTurnPedToFaceCoord(ped, tc.x, tc.y, tc.z, 800)
+                        Wait(800)
+                        playCuffAnim(ped)
+                        Wait(2200)
+                        TriggerServerEvent('eightys_police:server:toggleCuff', player.srvId)
+                        menuOpen = false
+                    end)
+                end,
+            })
         end
-    end
 
-    if not target or minDist > maxDist then
-        lib.notify({ title = "Trop loin", description = "Aucun joueur à portée.", type = "inform" })
-        return
-    end
+        -- ---- Arrêter ----
+        table.insert(actions, {
+            title       = "Arrêter",
+            icon        = "gavel",
+            description = "Envoyer au pénitencier",
+            onSelect    = function()
+                local input = lib.inputDialog("Emprisonnement de " .. player.name, {
+                    { type = "number", label = "Durée (minutes)", min = 1, max = 30, default = 5 },
+                })
+                if input and input[1] then
+                    TriggerServerEvent('eightys_police:server:arrestPlayer', player.srvId, input[1] * 60)
+                end
+                menuOpen = false
+            end,
+        })
 
-    isCuffing = true
-    local targetSrvId  = GetPlayerServerId(target)
-    local targetPed    = GetPlayerPed(target)
-    local targetCoords = GetEntityCoords(targetPed)
+        -- ---- Fouiller ----
+        table.insert(actions, {
+            title       = "Fouiller",
+            icon        = "magnifying-glass",
+            description = "Chercher des objets illégaux sur le suspect",
+            onSelect    = function()
+                CreateThread(function()
+                    lib.progressBar({
+                        duration     = 3000,
+                        label        = "Fouille de " .. player.name .. "...",
+                        useWhileDead = false,
+                        canCancel    = false,
+                        disable      = { car = true, combat = true },
+                        anim         = { dict = "anim@narcotics@trash_search", clip = "trashsearch_litter_idle" },
+                    }, function(cancelled)
+                        if not cancelled then
+                            TriggerServerEvent('eightys_police:server:searchPlayer', player.srvId)
+                        end
+                    end)
+                    menuOpen = false
+                end)
+            end,
+        })
 
-    -- 1. Orienter le flic vers la cible
-    TaskTurnPedToFaceCoord(ped, targetCoords.x, targetCoords.y, targetCoords.z, 800)
-    Wait(800)
+        lib.registerContext({
+            id      = 'police_player_actions',
+            title   = string.format('%s  [%.1f m]', player.name, player.dist),
+            options = actions,
+        })
+        lib.showContext('police_player_actions')
+    end, player.srvId)
+end
 
-    -- 2. Animation menottage flic
-    playCuffAnim(ped)
-    Wait(2200)  -- durée de l'animation a_uncuff
-
-    -- 3. Déclencher le menottage (ou démenottage) sur le serveur
-    TriggerServerEvent('eightys_police:server:toggleCuff', targetSrvId)
-
-    isCuffing = false
-end, false)
-
--- /arreter — Arrêter et emprisonner
-RegisterCommand('arreter', function(source, args)
-    if not isPolice and not isViceSquad then
-        lib.notify({ title = "Accès refusé", type = "error", description = "Réservé aux forces de l'ordre." })
-        return
-    end
-
-    local minutes = tonumber(args[1]) or 5
-    minutes = math.max(1, math.min(30, minutes))
+-- ================================================================
+-- MENU ALT — Menu principal police
+-- ================================================================
+local function openPoliceMenu()
+    if menuOpen then return end
+    menuOpen = true
 
     local ped    = PlayerPedId()
     local coords = GetEntityCoords(ped)
-    local target = nil
-    local minDist = Config.Police.CuffDistance + 1
+    local options = {}
 
-    for _, playerId in ipairs(GetActivePlayers()) do
-        if playerId ~= PlayerId() then
-            local targetPed  = GetPlayerPed(playerId)
-            local dist = #(coords - GetEntityCoords(targetPed))
-            if dist < minDist then
-                minDist = dist
-                target  = playerId
+    -- ---- Section joueurs proches ----
+    local nearby = {}
+    for _, pid in ipairs(GetActivePlayers()) do
+        if pid ~= PlayerId() then
+            local tPed = GetPlayerPed(pid)
+            local dist = #(coords - GetEntityCoords(tPed))
+            if dist <= 15.0 then
+                table.insert(nearby, {
+                    localId = pid,
+                    srvId   = GetPlayerServerId(pid),
+                    name    = GetPlayerName(pid),
+                    dist    = dist,
+                })
             end
         end
     end
 
-    if target and minDist <= Config.Police.CuffDistance then
-        TriggerServerEvent('eightys_police:server:arrestPlayer', GetPlayerServerId(target), minutes * 60)
+    -- Trier par distance croissante
+    table.sort(nearby, function(a, b) return a.dist < b.dist end)
+
+    if #nearby > 0 then
+        for _, p in ipairs(nearby) do
+            local captured = p  -- capture de la variable pour la closure
+            table.insert(options, {
+                title       = captured.name,
+                icon        = 'user',
+                description = string.format('%.1f m', captured.dist),
+                onSelect    = function()
+                    openPlayerActions(captured)
+                end,
+            })
+        end
     else
-        lib.notify({ title = "Trop loin", type = "inform", description = "Aucun joueur à portée." })
-    end
-end, false)
-
--- /sacpreuves — Ramasser des preuves
-RegisterCommand('sacpreuves', function()
-    if not isPolice and not isViceSquad then
-        lib.notify({ title = "Accès refusé", type = "error", description = "Réservé aux forces de l'ordre." })
-        return
+        table.insert(options, {
+            title    = 'Aucun suspect à proximité',
+            icon     = 'circle-info',
+            disabled = true,
+        })
     end
 
-    lib.progressBar({
-        duration = 3000,
-        label    = "Collecte de preuves...",
-        useWhileDead = false,
-        canCancel    = true,
-        disable = { car = true, combat = true },
-        anim = {
-            dict  = "anim@narcotics@trash_search",
-            clip  = "trashsearch_litter_idle",
-        },
-    }, function(cancelled)
-        if not cancelled then
-            TriggerServerEvent('eightys_police:server:collectEvidence')
-        end
-    end)
-end, false)
+    -- ---- Séparateur — Actions personnelles ----
+    table.insert(options, { title = '── Actions officier ──', disabled = true })
 
--- /armurerie — Accéder à l'armurerie (dans le commissariat)
-RegisterCommand('armurerie', function()
-    if not isPolice and not isViceSquad then
-        lib.notify({ title = "Accès refusé", type = "error" })
-        return
-    end
-
-    local ped    = PlayerPedId()
-    local coords = GetEntityCoords(ped)
+    -- Armurerie
     local atStation = false
-
     for _, loc in ipairs(Config.Police.Locations) do
         if #(coords - vector3(loc.coords.x, loc.coords.y, loc.coords.z)) < 15.0 then
             atStation = true
             break
         end
     end
-
-    if not atStation then
-        lib.notify({
-            title       = "Hors zone",
-            description = "Vous devez être au commissariat.",
-            type        = "error",
-        })
-        return
-    end
-
-    TriggerServerEvent('eightys_police:server:openArmory')
-end, false)
-
--- ================================================================
--- RADAR VITESSE (Vice Squad)
--- ================================================================
-local radarActive = false
-
-RegisterCommand('radar', function()
-    if not isPolice and not isViceSquad then return end
-
-    radarActive = not radarActive
-    lib.notify({
-        title       = radarActive and "Radar activé" or "Radar désactivé",
-        description = radarActive and "Surveillance des vitesses active." or "",
-        type        = "inform",
+    table.insert(options, {
+        title       = 'Armurerie',
+        icon        = 'gun',
+        description = atStation and 'Récupérer l\'équipement' or 'Réservé au commissariat',
+        disabled    = not atStation,
+        onSelect    = function()
+            TriggerServerEvent('eightys_police:server:openArmory')
+            menuOpen = false
+        end,
     })
+
+    -- Collecte de preuves
+    table.insert(options, {
+        title    = 'Ramasser des preuves',
+        icon     = 'bag-shopping',
+        onSelect = function()
+            menuOpen = false
+            CreateThread(function()
+                lib.progressBar({
+                    duration     = 3000,
+                    label        = 'Collecte de preuves...',
+                    useWhileDead = false,
+                    canCancel    = true,
+                    disable      = { car = true, combat = true },
+                    anim         = { dict = 'anim@narcotics@trash_search', clip = 'trashsearch_litter_idle' },
+                }, function(cancelled)
+                    if not cancelled then TriggerServerEvent('eightys_police:server:collectEvidence') end
+                end)
+            end)
+        end,
+    })
+
+    -- Radar vitesse
+    table.insert(options, {
+        title       = radarActive and 'Radar — Désactiver' or 'Radar — Activer',
+        icon        = radarActive and 'circle-stop' or 'satellite-dish',
+        description = 'Surveiller les excès de vitesse',
+        onSelect    = function()
+            radarActive = not radarActive
+            lib.notify({
+                title       = radarActive and 'Radar activé' or 'Radar désactivé',
+                description = radarActive and 'Surveillance des vitesses active.' or '',
+                type        = 'inform',
+            })
+            menuOpen = false
+        end,
+    })
+
+    lib.registerContext({
+        id      = 'police_main_menu',
+        title   = 'Interaction Police',
+        options = options,
+    })
+    lib.showContext('police_main_menu')
+end
+
+-- ================================================================
+-- TOUCHE ALT — Ouverture du menu
+-- ================================================================
+RegisterCommand('police_interaction', function()
+    if not isPolice and not isViceSquad then return end
+    openPoliceMenu()
 end, false)
 
+RegisterKeyMapping('police_interaction', 'Menu d\'interaction Police', 'keyboard', 'LMENU')
+
+-- Reset du verrou si le NUI se ferme sans sélection
+RegisterNUICallback('contextMenuClosed', function(_, cb)
+    menuOpen = false
+    cb('ok')
+end)
+
+-- ================================================================
+-- RADAR — Thread de surveillance (indépendant du menu)
+-- ================================================================
 CreateThread(function()
     while true do
         Wait(2000)
@@ -354,23 +393,19 @@ CreateThread(function()
         local ped    = PlayerPedId()
         local coords = GetEntityCoords(ped)
 
-        for _, playerId in ipairs(GetActivePlayers()) do
-            if playerId ~= PlayerId() then
-                local targetPed = GetPlayerPed(playerId)
-                local vehicle   = GetVehiclePedIsIn(targetPed, false)
-
-                if vehicle ~= 0 then
-                    local dist = #(coords - GetEntityCoords(targetPed))
-                    if dist < 80.0 then
-                        local speed = GetEntitySpeed(vehicle) * 2.237  -- MPH
-                        if speed > 80 then   -- > 80 MPH
-                            lib.notify({
-                                title       = string.format("⚡ EXCÈS DE VITESSE"),
-                                description = string.format("ID %d — %.0f MPH", GetPlayerServerId(playerId), speed),
-                                type        = "error",
-                                duration    = 4000,
-                            })
-                        end
+        for _, pid in ipairs(GetActivePlayers()) do
+            if pid ~= PlayerId() then
+                local tPed = GetPlayerPed(pid)
+                local veh  = GetVehiclePedIsIn(tPed, false)
+                if veh ~= 0 and #(coords - GetEntityCoords(tPed)) < 80.0 then
+                    local speed = GetEntitySpeed(veh) * 2.237
+                    if speed > 80 then
+                        lib.notify({
+                            title       = 'EXCÈS DE VITESSE',
+                            description = string.format('ID %d — %.0f MPH', GetPlayerServerId(pid), speed),
+                            type        = 'error',
+                            duration    = 4000,
+                        })
                     end
                 end
             end
@@ -381,21 +416,19 @@ CreateThread(function()
 end)
 
 -- ================================================================
--- AFFICHAGE DANS LES ZONES POLICE
+-- 3D TEXT — Indicateur zone commissariat
 -- ================================================================
 CreateThread(function()
     while true do
         local sleep = 2000
 
         if isPolice or isViceSquad then
-            local ped    = PlayerPedId()
-            local coords = GetEntityCoords(ped)
-
+            local coords = GetEntityCoords(PlayerPedId())
             for _, loc in ipairs(Config.Police.Locations) do
                 if #(coords - vector3(loc.coords.x, loc.coords.y, loc.coords.z)) < 30.0 then
                     sleep = 0
                     drawText3D(loc.coords.x, loc.coords.y, loc.coords.z + 1.0,
-                        "[/menottes] Menotter  |  [/arreter X] Arrêter  |  [/armurerie] Équipement")
+                        '[ALT] Menu Police')
                 end
             end
         end
