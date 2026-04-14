@@ -5,16 +5,30 @@
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
+-- Suivi des joueurs menottés : cuffed[targetSrc] = officerSrc
+local cuffed = {}
+
+-- Nettoyage si un joueur se déconnecte
+AddEventHandler('playerDropped', function()
+    local src = source
+    cuffed[src] = nil
+    -- Si la cible déconnectée était menottée, c'est automatiquement nettoyé
+    for target, officer in pairs(cuffed) do
+        if officer == src then cuffed[target] = nil end
+    end
+end)
+
 -- ================================================================
--- MENOTTER UN JOUEUR
+-- TOGGLE CUFF / UNCUFF (un seul event pour les deux)
 -- ================================================================
-RegisterNetEvent('eightys_police:server:cuffPlayer', function(targetSrc)
+RegisterNetEvent('eightys_police:server:toggleCuff', function(targetSrc)
     local src     = source
     local Officer = QBCore.Functions.GetPlayer(src)
     local Target  = QBCore.Functions.GetPlayer(tonumber(targetSrc))
 
     if not Officer or not Target then return end
 
+    -- Vérifier le job
     local jobName = Officer.PlayerData.job and Officer.PlayerData.job.name
     if jobName ~= "police" and jobName ~= "vicesquad" then
         TriggerClientEvent('ox_lib:notify', src, {
@@ -24,36 +38,46 @@ RegisterNetEvent('eightys_police:server:cuffPlayer', function(targetSrc)
         return
     end
 
-    TriggerClientEvent('eightys_police:client:cuffPlayer', targetSrc)
+    local targetId = tonumber(targetSrc)
+    local name = string.format("%s %s",
+        Target.PlayerData.charinfo.firstname or "?",
+        Target.PlayerData.charinfo.lastname  or "?")
 
-    TriggerClientEvent('ox_lib:notify', src, {
-        title = "Joueur menotté",
-        description = string.format("%s %s a été menotté.",
-            Target.PlayerData.charinfo.firstname,
-            Target.PlayerData.charinfo.lastname),
-        type = "success",
-    })
-
-    print(string.format("[POLICE] %d a menotté %d", src, targetSrc))
+    if cuffed[targetId] then
+        -- ---- DÉMENOTTER ----
+        cuffed[targetId] = nil
+        TriggerClientEvent('eightys_police:client:uncuffPlayer', targetId)
+        TriggerClientEvent('ox_lib:notify', src, {
+            title       = "Menottes retirées",
+            description = name .. " a été libéré(e) des menottes.",
+            type        = "inform",
+        })
+        print(string.format("[POLICE] %d a démenotté %d", src, targetId))
+    else
+        -- ---- MENOTTER ----
+        cuffed[targetId] = src
+        TriggerClientEvent('eightys_police:client:cuffPlayer', targetId)
+        TriggerClientEvent('ox_lib:notify', src, {
+            title       = "Joueur menotté",
+            description = name .. " a été menotté(e).",
+            type        = "success",
+        })
+        print(string.format("[POLICE] %d a menotté %d", src, targetId))
+    end
 end)
 
 -- ================================================================
--- LIBÉRER DES MENOTTES
+-- LIBÉRER DES MENOTTES (event direct, utilisé par arrestPlayer)
 -- ================================================================
 RegisterNetEvent('eightys_police:server:uncuffPlayer', function(targetSrc)
     local src     = source
     local Officer = QBCore.Functions.GetPlayer(src)
     if not Officer then return end
-
     local jobName = Officer.PlayerData.job and Officer.PlayerData.job.name
     if jobName ~= "police" and jobName ~= "vicesquad" then return end
-
-    TriggerClientEvent('eightys_police:client:uncuffPlayer', tonumber(targetSrc))
-
-    TriggerClientEvent('ox_lib:notify', src, {
-        title = "Menottes retirées", type = "inform",
-        description = "Le joueur a été libéré des menottes.",
-    })
+    local targetId = tonumber(targetSrc)
+    cuffed[targetId] = nil
+    TriggerClientEvent('eightys_police:client:uncuffPlayer', targetId)
 end)
 
 -- ================================================================
@@ -90,9 +114,11 @@ RegisterNetEvent('eightys_police:server:arrestPlayer', function(targetSrc, sente
         sentence,
     })
 
-    -- Envoyer en prison
-    TriggerClientEvent('eightys_police:client:uncuffPlayer', targetSrc)
-    TriggerClientEvent('eightys_police:client:sendToJail', targetSrc, sentence)
+    -- Envoyer en prison (nettoyer l'état menottes avant)
+    local targetId = tonumber(targetSrc)
+    cuffed[targetId] = nil
+    TriggerClientEvent('eightys_police:client:uncuffPlayer', targetId)
+    TriggerClientEvent('eightys_police:client:sendToJail',   targetId, sentence)
 
     -- Réinitialiser le niveau de recherche
     TriggerClientEvent('eightys_police:client:clearWanted', targetSrc)

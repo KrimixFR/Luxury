@@ -87,27 +87,56 @@ local function drawText3D(x, y, z, text)
 end
 
 -- ================================================================
--- MENOTTES — Systeme d'arrestation
+-- ANIMATIONS MENOTTES — Helpers
+-- ================================================================
+local function loadAnim(dict)
+    RequestAnimDict(dict)
+    local t = 0
+    while not HasAnimDictLoaded(dict) do
+        Wait(10)
+        t = t + 10
+        if t > 3000 then break end  -- timeout 3s
+    end
+end
+
+-- Animation flic : geste de menottage (2 s, non-loopé)
+local function playCuffAnim(ped)
+    loadAnim("mp_arresting")
+    -- a_uncuff : le personnage se penche légèrement en avant,
+    -- mains tendues — visuellement cohérent pour "appliquer des menottes"
+    TaskPlayAnim(ped, "mp_arresting", "a_uncuff", 4.0, -4.0, 2200, 0, 0, false, false, false)
+end
+
+-- Animation cible : transition mains levées → mains dans le dos
+local function playBeingCuffedAnim(ped)
+    -- Phase 1 : mains levées (1,2 s) — le suspect se rend
+    loadAnim("random@arrests")
+    if HasAnimDictLoaded("random@arrests") then
+        TaskPlayAnim(ped, "random@arrests", "idle_2_hands_up", 8.0, -8.0, 1200, 0, 0, false, false, false)
+        Wait(1200)
+    end
+    -- Phase 2 : menottes dans le dos (persistant)
+    loadAnim("mp_arresting")
+    SetEnableHandcuffs(ped, true)
+    TaskPlayAnim(ped, "mp_arresting", "idle", 8.0, -8.0, -1, 49, 0, false, false, false)
+end
+
+-- ================================================================
+-- MENOTTES — Cuff / Uncuff (reçu du serveur)
 -- ================================================================
 RegisterNetEvent('eightys_police:client:cuffPlayer', function()
     isCuffed = true
-
-    -- Animations
     local ped = PlayerPedId()
-    RequestAnimDict("mp_arresting")
-    while not HasAnimDictLoaded("mp_arresting") do Wait(100) end
-
-    SetEnableHandcuffs(ped, true)
-    TaskPlayAnim(ped, "mp_arresting", "idle", 8.0, -8.0, -1, 49, 0, false, false, false)
-
+    CreateThread(function()
+        playBeingCuffedAnim(ped)
+    end)
     lib.notify({
         title       = "Menottes",
         description = "Vous êtes menottés. Restez calme.",
         type        = "error",
         duration    = 5000,
     })
-
-    -- Le thread persistant en haut du fichier prend en charge les contrôles
+    -- Le thread persistant en haut du fichier gère DisableControlAction
 end)
 
 RegisterNetEvent('eightys_police:client:uncuffPlayer', function()
@@ -116,7 +145,6 @@ RegisterNetEvent('eightys_police:client:uncuffPlayer', function()
     SetEnableHandcuffs(ped, false)
     StopAnimTask(ped, "mp_arresting", "idle", 1.0)
     ClearPedTasks(ped)
-
     lib.notify({
         title       = "Libéré",
         description = "Vous avez été libéré des menottes.",
@@ -164,25 +192,26 @@ end)
 -- COMMANDES POLICE UNIQUEMENT
 -- ================================================================
 
--- /menottes — Menotter le joueur le plus proche
+-- /menottes — Menotter / démenotter le joueur le plus proche
+local isCuffing = false  -- verrou anti-spam
+
 RegisterCommand('menottes', function()
     if not isPolice and not isViceSquad then
         lib.notify({ title = "Accès refusé", description = "Réservé aux forces de l'ordre.", type = "error" })
         return
     end
+    if isCuffing then return end  -- empêcher le double-clic
 
-    local ped    = PlayerPedId()
-    local coords = GetEntityCoords(ped)
+    local ped     = PlayerPedId()
+    local coords  = GetEntityCoords(ped)
     local maxDist = Config.Police.CuffDistance
-    local target = nil
+    local target  = nil
     local minDist = maxDist + 1
 
     -- Trouver le joueur le plus proche
     for _, playerId in ipairs(GetActivePlayers()) do
         if playerId ~= PlayerId() then
-            local targetPed  = GetPlayerPed(playerId)
-            local targetCoords = GetEntityCoords(targetPed)
-            local dist = #(coords - targetCoords)
+            local dist = #(coords - GetEntityCoords(GetPlayerPed(playerId)))
             if dist < minDist then
                 minDist = dist
                 target  = playerId
@@ -190,11 +219,28 @@ RegisterCommand('menottes', function()
         end
     end
 
-    if target and minDist <= maxDist then
-        TriggerServerEvent('eightys_police:server:cuffPlayer', GetPlayerServerId(target))
-    else
+    if not target or minDist > maxDist then
         lib.notify({ title = "Trop loin", description = "Aucun joueur à portée.", type = "inform" })
+        return
     end
+
+    isCuffing = true
+    local targetSrvId  = GetPlayerServerId(target)
+    local targetPed    = GetPlayerPed(target)
+    local targetCoords = GetEntityCoords(targetPed)
+
+    -- 1. Orienter le flic vers la cible
+    TaskTurnPedToFaceCoord(ped, targetCoords.x, targetCoords.y, targetCoords.z, 800)
+    Wait(800)
+
+    -- 2. Animation menottage flic
+    playCuffAnim(ped)
+    Wait(2200)  -- durée de l'animation a_uncuff
+
+    -- 3. Déclencher le menottage (ou démenottage) sur le serveur
+    TriggerServerEvent('eightys_police:server:toggleCuff', targetSrvId)
+
+    isCuffing = false
 end, false)
 
 -- /arreter — Arrêter et emprisonner
