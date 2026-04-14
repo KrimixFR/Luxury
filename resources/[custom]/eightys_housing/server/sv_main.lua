@@ -41,12 +41,10 @@ end
 -- ================================================================
 -- CHARGER LES DONNÉES AU LOGIN
 -- ================================================================
-RegisterNetEvent('QBCore:Server:PlayerLoaded', function()
-    local src     = source
-    local Player  = QBCore.Functions.GetPlayer(src)
+AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
     if not Player then return end
-    local cid     = Player.PlayerData.citizenid
-    local rental  = getRental(cid)
+    local src    = Player.PlayerData.source
+    local rental = getRental(Player.PlayerData.citizenid)
     if rental then
         TriggerClientEvent('eightys_housing:client:setRental', src, rental.apt_id)
     end

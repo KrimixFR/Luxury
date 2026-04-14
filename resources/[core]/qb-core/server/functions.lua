@@ -130,3 +130,32 @@ end
 function QBCore.Functions.GetPlayers()
     return GetPlayers()
 end
+
+-- ================================================================
+-- ITEMS UTILISABLES
+-- ================================================================
+local UseableItems = {}
+
+function QBCore.Functions.CreateUseableItem(item, cb)
+    UseableItems[item] = cb
+end
+
+function QBCore.Functions.UseItem(source, item)
+    if UseableItems[item.name] then
+        UseableItems[item.name](source, item)
+    end
+end
+
+-- Déclenché par le client quand un joueur utilise un item
+RegisterNetEvent('QBCore:Server:UseItem', function(itemName)
+    local src    = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+
+    local item = Player.Functions.GetItemByName(itemName)
+    if not item then return end
+
+    if UseableItems[itemName] then
+        UseableItems[itemName](src, item)
+    end
+end)

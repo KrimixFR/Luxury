@@ -154,10 +154,9 @@ end)
 -- ================================================================
 -- SYNC AU CHARGEMENT DU JOUEUR
 -- ================================================================
-RegisterNetEvent('QBCore:Server:PlayerLoaded', function()
-    local src    = source
-    local Player = QBCore.Functions.GetPlayer(src)
+AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
     if not Player then return end
+    local src            = Player.PlayerData.source
     local hunger, thirst = getNeeds(Player)
     TriggerClientEvent('eightys_needs:client:update', src, hunger, thirst)
 end)

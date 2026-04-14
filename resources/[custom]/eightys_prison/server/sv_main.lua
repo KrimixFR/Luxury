@@ -131,10 +131,9 @@ end, true)
 -- ================================================================
 -- SYNC AU LOGIN (si peine en cours)
 -- ================================================================
-RegisterNetEvent('QBCore:Server:PlayerLoaded', function()
-    local src    = source
-    local Player = QBCore.Functions.GetPlayer(src)
+AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
     if not Player then return end
+    local src = Player.PlayerData.source
 
     local rec = getRecord(Player.PlayerData.citizenid)
     if rec and rec.sentence_end and rec.sentence_end > os.time() then

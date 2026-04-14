@@ -3,6 +3,10 @@
 -- Classe Player : données, méthodes Add/Remove money, items, job, gang
 -- ================================================================
 
+-- S'assurer que QBCore.Player existe (main.lua charge après ce fichier)
+QBCore        = QBCore or {}
+QBCore.Player = QBCore.Player or {}
+
 local RES = GetCurrentResourceName()
 
 -- ================================================================

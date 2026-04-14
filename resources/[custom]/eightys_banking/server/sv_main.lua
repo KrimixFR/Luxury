@@ -119,17 +119,16 @@ end)
 -- ================================================================
 -- SYNC AU LOGIN
 -- ================================================================
-RegisterNetEvent('QBCore:Server:PlayerLoaded', function()
-    local src    = source
-    local Player = QBCore.Functions.GetPlayer(src)
+AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
     if not Player then return end
+    local src = Player.PlayerData.source
     local acc = ensureAccount(Player.PlayerData.citizenid)
     TriggerClientEvent('eightys_banking:client:accountData', src, {
-        balance     = acc.balance,
-        hasCard     = acc.card_number ~= nil,
-        hasPin      = acc.pin ~= nil,
-        last4       = acc.card_number and acc.card_number:sub(-4) or nil,
-        blocked     = isBlocked(acc),
+        balance  = acc.balance,
+        hasCard  = acc.card_number ~= nil,
+        hasPin   = acc.pin ~= nil,
+        last4    = acc.card_number and acc.card_number:sub(-4) or nil,
+        blocked  = isBlocked(acc),
     })
 end)
 

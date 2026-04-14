@@ -123,13 +123,10 @@ RegisterNetEvent('eightys_addiction:server:detox', function()
 end)
 
 -- Envoi de l'état au chargement du joueur
-RegisterNetEvent('QBCore:Server:PlayerLoaded', function()
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
     if not Player then return end
-
-    local citizenid = Player.PlayerData.citizenid
-    local record = getOrCreateRecord(citizenid)
+    local src    = Player.PlayerData.source
+    local record = getOrCreateRecord(Player.PlayerData.citizenid)
     syncToClient(src, record)
 end)
 

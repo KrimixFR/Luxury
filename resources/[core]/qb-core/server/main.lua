@@ -65,6 +65,9 @@ RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
     TriggerClientEvent('QBCore:Client:OnPlayerLoaded', src)
     TriggerClientEvent('QBCore:Player:SetPlayerData', src, Player.PlayerData)
 
+    -- Événement local pour les autres resources (AddEventHandler)
+    TriggerEvent('QBCore:Server:PlayerLoaded', Player)
+
     print(string.format('[QBCore] Joueur connecté : %s (src:%d, citizenid:%s)',
         name, src, Player.PlayerData.citizenid))
 end)
