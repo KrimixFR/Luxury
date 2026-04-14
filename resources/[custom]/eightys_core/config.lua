@@ -658,6 +658,37 @@ Config.GloveBox = {
 }
 
 -- ================================================================
+-- BANQUE — Fleeca Bank & Pacific Standard
+-- ================================================================
+Config.Banking = {
+    CardPrefix    = "4987",  -- Préfixe des numéros de carte Fleeca
+    PinAttempts   = 3,       -- Tentatives PIN avant blocage
+    BlockDuration = 300,     -- Secondes de blocage (5 min)
+    WithdrawMin   = 50,
+    WithdrawMax   = 50000,
+    DepositMin    = 50,
+
+    -- Agences (guichet : dépôt, retrait, carte, déblocage)
+    Branches = {
+        { label = "Fleeca — South LS",      coords = vector3(149.4,   -1042.7, 29.4)  },
+        { label = "Fleeca — Rockford Hills", coords = vector3(-1212.9, -330.4,  37.8) },
+        { label = "Fleeca — Vespucci",       coords = vector3(-2962.9,  482.6,  15.7) },
+        { label = "Pacific Standard Bank",   coords = vector3(247.0,    220.5,  106.3) },
+    },
+
+    -- ATMs (retrait uniquement — les ATM 80s ne prenaient pas les dépôts)
+    ATMs = {
+        vector3(149.4,   -1042.7, 29.4),
+        vector3(-1212.9, -330.4,  37.8),
+        vector3(-2962.9,  482.6,  15.7),
+        vector3(26.6,    -1346.6, 29.5),
+        vector3(-706.0,   -914.2, 19.2),
+        vector3(313.0,    -279.5, 54.2),
+        vector3(1175.0,   2706.8, 38.1),
+    },
+}
+
+-- ================================================================
 -- BESOINS — Faim & Soif avec péremption
 -- ================================================================
 Config.Needs = {

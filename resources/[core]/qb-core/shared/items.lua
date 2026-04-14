@@ -54,4 +54,8 @@ QBShared.Items = {
     ['cassette_motown']  = { name='cassette_motown', label='Motown Gold',          weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette Motown — Marvin Gaye, Stevie Wonder, Four Tops' },
     ['cassette_jazz']    = { name='cassette_jazz',   label='Blue Note Jazz',       weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette jazz — Miles Davis, Coltrane, Monk' },
     ['cassette_reggae']  = { name='cassette_reggae', label='Island Vibes Reggae',  weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette reggae — Bob Marley, Peter Tosh, Toots' },
+
+    -- Banque Fleeca — Cartes bancaires
+    ['bank_card']        = { name='bank_card',       label='Carte bancaire Fleeca', weight=10, type='item', image='bank_card.png',     useable=false, shouldClose=false, combinable=nil, description='Carte de débit Fleeca personnelle (4987-XXXX-XXXX-XXXX)' },
+    ['business_card']    = { name='business_card',   label='Carte entreprise Fleeca',weight=10,type='item', image='business_card.png', useable=false, shouldClose=false, combinable=nil, description='Carte de débit Fleeca professionnelle liée à un compte entreprise' },
 }
