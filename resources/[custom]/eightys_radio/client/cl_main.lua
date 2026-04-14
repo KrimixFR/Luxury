@@ -1,7 +1,7 @@
 -- ================================================================
 -- eightys_radio — Client
 -- Lecteur cassette 80s : désactive la radio GTA, remplace par
--- des cassettes achetées au disquaire Ray's Records
+-- des fichiers MP3 locaux via NUI (HTML5 Audio)
 -- ================================================================
 
 local QBCore      = exports['qb-core']:GetCoreObject()
@@ -9,7 +9,7 @@ local playerData  = nil
 local currentVeh  = 0
 local deckOpen    = false
 
--- Cassette actuellement insérée dans ce véhicule { name, label, station, color }
+-- Cassette actuellement insérée dans ce véhicule { name, label, audioFile, color }
 local insertedCassette = nil
 
 -- Index des cassettes par name pour lookup rapide
@@ -20,6 +20,7 @@ end
 
 -- ================================================================
 -- RADIO — Désactivation systématique
+-- Le son vient maintenant du NUI (MP3 local), pas de la radio GTA.
 -- ================================================================
 local function muteRadio(veh)
     if veh == 0 then return end
@@ -34,16 +35,8 @@ CreateThread(function()
         local ped = PlayerPedId()
         local veh = GetVehiclePedIsIn(ped, false)
         if veh ~= 0 then
-            -- Si on n'a pas de cassette insérée → silence
-            -- Si on a une cassette → maintenir la bonne station
-            if insertedCassette then
-                local cur = GetPlayerRadioStationName()
-                if cur ~= insertedCassette.station then
-                    SetVehRadioStation(veh, insertedCassette.station)
-                end
-            else
-                muteRadio(veh)
-            end
+            -- Le son vient du NUI (MP3) — toujours couper la radio GTA
+            muteRadio(veh)
         end
     end
 end)
@@ -87,10 +80,11 @@ local function getCassettesInInventory()
         if cassetteIndex[item.name] and (item.amount or 0) > 0 then
             local c = cassetteIndex[item.name]
             table.insert(found, {
-                name  = c.name,
-                label = c.label,
-                color = c.color,
-                qty   = item.amount,
+                name      = c.name,
+                label     = c.label,
+                color     = c.color,
+                audioFile = c.audioFile,
+                qty       = item.amount,
             })
         end
     end
@@ -152,8 +146,9 @@ RegisterNUICallback('insertCassette', function(data, cb)
 
     insertedCassette = cassette
 
+    -- Couper la radio GTA (le son vient du NUI)
     if currentVeh ~= 0 then
-        SetVehRadioStation(currentVeh, cassette.station)
+        muteRadio(currentVeh)
     end
 
     updateDeckNUI()

@@ -9,6 +9,30 @@ function nui(cb, data) {
     }).catch(() => {});
 }
 
+// ── Lecteur audio HTML5 (fichiers MP3 locaux) ──
+let audioPlayer = new Audio();
+audioPlayer.loop   = true;
+audioPlayer.volume = 0.8;
+
+function playAudio(audioFile) {
+    const url = `https://${res()}/audio/${audioFile}`;
+    if (audioPlayer.src !== url) {
+        audioPlayer.src = url;
+    }
+    audioPlayer.play().then(() => startVU()).catch(() => {});
+}
+
+function stopAudio() {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+    audioPlayer.src = '';
+    stopVU();
+}
+
+audioPlayer.addEventListener('playing', startVU);
+audioPlayer.addEventListener('pause',   stopVU);
+audioPlayer.addEventListener('ended',   stopVU);
+
 // ── État ──
 let state = {
     cassettes : [],
@@ -128,13 +152,20 @@ window.addEventListener('message', e => {
 
     if (d.type === 'CLOSE_DECK') {
         document.getElementById('deck').classList.add('hidden');
-        stopVU();
+        stopAudio();
     }
 
     if (d.type === 'UPDATE_DECK') {
         state.cassettes = d.cassettes || [];
         state.inserted  = d.inserted  || null;
         state.playing   = d.playing   || false;
+
+        if (state.inserted && state.inserted.audioFile && state.playing) {
+            playAudio(state.inserted.audioFile);
+        } else {
+            stopAudio();
+        }
+
         render();
     }
 });

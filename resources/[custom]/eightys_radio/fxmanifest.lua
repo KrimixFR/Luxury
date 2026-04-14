@@ -26,6 +26,8 @@ files {
     'html/index.html',
     'html/style.css',
     'html/app.js',
+    'html/audio/*.mp3',
+    'html/audio/*.ogg',
 }
 
 dependencies {

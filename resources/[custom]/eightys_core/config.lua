@@ -20,7 +20,7 @@ Config.StartingBank = 0     -- Pas de compte bancaire pré-rempli (années 80)
 -- ================================================================
 -- ÉCONOMIE — Cash is King (années 80)
 -- ================================================================
-Config.Economy = {
+Config.EconomyBase = {
     CurrencySymbol  = "$",
     MaxCashOnHand   = 50000,        -- Max en poche avant danger d'être volé
     WalletStealable = true,         -- Les joueurs peuvent voler l'argent liquide
@@ -215,6 +215,72 @@ Config.Jobs = {
             [1] = { name = "infirmier",   label = "Infirmier",       payment = 65  },
             [2] = { name = "medecin",     label = "Médecin",         payment = 85  },
             [3] = { name = "chef_serv",   label = "Chef de Service", payment = 110 },
+        },
+    },
+    ["government"] = {
+        label       = "Gouvernement",
+        defaultDuty = true,
+        offDutyPay  = false,
+        grades      = {
+            [0] = { name="fonctionnaire",  label="Fonctionnaire",   payment=200 },
+            [1] = { name="conseiller",     label="Conseiller",      payment=300 },
+            [2] = { name="prefet",         label="Préfet",          payment=500 },
+            [3] = { name="maire",          label="Maire",           payment=800 },
+        },
+    },
+    ["restaurant"] = {
+        label       = "Restaurateur",
+        defaultDuty = false,
+        offDutyPay  = false,
+        grades      = {
+            [0] = { name="serveur",    label="Serveur",    payment=100 },
+            [1] = { name="chef",       label="Chef",       payment=200 },
+            [2] = { name="gerant",     label="Gérant",     payment=300 },
+        },
+    },
+    ["epicerie"] = {
+        label       = "Épicier",
+        defaultDuty = false,
+        offDutyPay  = false,
+        grades      = {
+            [0] = { name="employe",  label="Employé",   payment=80  },
+            [1] = { name="gerant",   label="Gérant",    payment=200 },
+        },
+    },
+    ["boutique"] = {
+        label       = "Gérant Boutique",
+        defaultDuty = false,
+        offDutyPay  = false,
+        grades      = {
+            [0] = { name="vendeur",  label="Vendeur",   payment=100 },
+            [1] = { name="gerant",   label="Gérant",    payment=250 },
+        },
+    },
+    ["concessionnaire"] = {
+        label       = "Concessionnaire",
+        defaultDuty = false,
+        offDutyPay  = false,
+        grades      = {
+            [0] = { name="vendeur",  label="Vendeur",      payment=200 },
+            [1] = { name="directeur",label="Directeur",    payment=500 },
+        },
+    },
+    ["barman"] = {
+        label       = "Barman",
+        defaultDuty = false,
+        offDutyPay  = false,
+        grades      = {
+            [0] = { name="serveur",  label="Serveur",  payment=80  },
+            [1] = { name="patron",   label="Patron",   payment=200 },
+        },
+    },
+    ["recordshop"] = {
+        label       = "Disquaire",
+        defaultDuty = false,
+        offDutyPay  = false,
+        grades      = {
+            [0] = { name="vendeur",   label="Vendeur",   payment=100 },
+            [1] = { name="gerant",    label="Gérant",    payment=200 },
         },
     },
 }
@@ -514,13 +580,16 @@ Config.HUD = {
 -- LECTEUR CASSETTE & DISQUAIRE
 -- ================================================================
 Config.Radio = {
-    -- Cassettes disponibles : name = item, station = radio GTA V interne
+    -- Cassettes disponibles
+    -- audioFile = fichier MP3 dans html/audio/ (lecture locale, prioritaire)
+    -- Si audioFile est nil, la cassette joue en silence (musique à ajouter)
     Cassettes = {
-        { name = "cassette_rock",   label = "K-DST Classic Rock",  station = "RADIO_01_CLASS_ROCK", price = 15, color = "#FF4400" },
-        { name = "cassette_funk",   label = "Soul & Funk Mix",     station = "RADIO_17_FUNK",       price = 12, color = "#FF8800" },
-        { name = "cassette_motown", label = "Motown Gold",         station = "RADIO_15_MOTOWN",     price = 12, color = "#9900FF" },
-        { name = "cassette_jazz",   label = "Blue Note Jazz",      station = "RADIO_13_JAZZ",       price = 10, color = "#0066FF" },
-        { name = "cassette_reggae", label = "Island Vibes Reggae", station = "RADIO_12_REGGAE",     price = 10, color = "#00AA44" },
+        { name = "cassette_mj",     label = "Michael Jackson — Billie Jean", audioFile = "mj_billie_jean.mp3",  price = 25, color = "#FFFFFF" },
+        { name = "cassette_rock",   label = "K-DST Classic Rock",            audioFile = "rock_mix.mp3",        price = 15, color = "#FF4400" },
+        { name = "cassette_funk",   label = "Soul & Funk Mix",               audioFile = "funk_mix.mp3",        price = 12, color = "#FF8800" },
+        { name = "cassette_motown", label = "Motown Gold",                   audioFile = "motown_mix.mp3",      price = 12, color = "#9900FF" },
+        { name = "cassette_jazz",   label = "Blue Note Jazz",                audioFile = "jazz_mix.mp3",        price = 10, color = "#0066FF" },
+        { name = "cassette_reggae", label = "Island Vibes Reggae",           audioFile = "reggae_mix.mp3",      price = 10, color = "#00AA44" },
     },
 
     -- Emplacement du disquaire (Vespucci Beach — 1987 LA)
@@ -531,4 +600,79 @@ Config.Radio = {
     ShopJob       = "recordshop",
     ShopInteract  = 2.0,     -- Distance interaction (m)
     CommissionPct = 0.80,    -- 80% des ventes vont à la caisse du propriétaire
+}
+
+-- ================================================================
+-- ÉCONOMIE — TVA & Gouvernement
+-- ================================================================
+Config.Economy = {
+    TVARate     = 0.15,   -- 15% TVA sur toutes les transactions commerciales
+    GovJob      = "government",
+    GovLocation = vector3(375.0, -594.8, 28.9),
+    GovBlip     = { sprite=419, color=3, scale=0.9, label="Hôtel de Ville — Gouvernement" },
+}
+
+-- ================================================================
+-- ENTREPRISES — Los Santos 1987
+-- Chaque business = job dédié, caisse collectée par le gérant
+-- ================================================================
+Config.Businesses = {
+    ["el_burro"] = {
+        label    = "Restaurante El Burro",
+        job      = "restaurant",
+        location = vector3(1195.8, -1455.2, 34.9),
+        blip     = { sprite=52,  color=5,  scale=0.8, label="El Burro — Restaurant" },
+        till     = "business_till_el_burro",
+        items    = {
+            { name="burger", label="Burger Spécial",  price=8  },
+            { name="water",  label="Agua Fria",       price=2  },
+        },
+    },
+    ["sunset_deli"] = {
+        label    = "Sunset Liquor & Deli",
+        job      = "epicerie",
+        location = vector3(24.5, -1346.5, 29.5),
+        blip     = { sprite=52, color=2, scale=0.8, label="Sunset Deli — Épicerie" },
+        till     = "business_till_sunset_deli",
+        items    = {
+            { name="water",  label="Eau minérale",  price=2  },
+            { name="burger", label="Sandwich",      price=5  },
+        },
+    },
+    ["fab_fashion"] = {
+        label    = "Fab Fashion",
+        job      = "boutique",
+        location = vector3(-713.0, -152.7, 37.4),
+        blip     = { sprite=73, color=8, scale=0.8, label="Fab Fashion — Vêtements" },
+        till     = "business_till_fab_fashion",
+        items    = {
+            { name="clothing_voucher", label="Bon de tenue",  price=50  },
+            { name="clothing_luxury",  label="Tenue luxe",    price=150 },
+        },
+    },
+    ["chrome_dreams"] = {
+        label    = "Chrome Dreams Auto",
+        job      = "concessionnaire",
+        location = vector3(-44.6, -1095.5, 26.4),
+        blip     = { sprite=225, color=46, scale=0.8, label="Chrome Dreams — Concessionnaire" },
+        till     = "business_till_chrome_dreams",
+        items    = {
+            { name="vehicle_key_vigero",   label="Clé Vigero 1969",   price=12000 },
+            { name="vehicle_key_voodoo",   label="Clé Voodoo Custom", price=15000 },
+            { name="vehicle_key_phoenix",  label="Clé Phoenix 1982",  price=9500  },
+            { name="vehicle_key_gauntlet", label="Clé Gauntlet 1980", price=11000 },
+        },
+    },
+    ["el_gato_negro"] = {
+        label    = "El Gato Negro Bar",
+        job      = "barman",
+        location = vector3(-1083.4, -1398.9, 5.0),
+        blip     = { sprite=93, color=4, scale=0.8, label="El Gato Negro — Bar" },
+        till     = "business_till_el_gato_negro",
+        items    = {
+            { name="water",  label="Bière",    price=4  },
+            { name="water",  label="Cocktail", price=8  },
+            { name="water",  label="Whisky",   price=6  },
+        },
+    },
 }
