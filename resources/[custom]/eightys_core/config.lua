@@ -509,3 +509,26 @@ Config.HUD = {
     SpeedUnit       = "MPH",        -- Miles per hour (USA années 80)
     ScanlineEffect  = true,         -- Effet CRT écran rétro
 }
+
+-- ================================================================
+-- LECTEUR CASSETTE & DISQUAIRE
+-- ================================================================
+Config.Radio = {
+    -- Cassettes disponibles : name = item, station = radio GTA V interne
+    Cassettes = {
+        { name = "cassette_rock",   label = "K-DST Classic Rock",  station = "RADIO_01_CLASS_ROCK", price = 15, color = "#FF4400" },
+        { name = "cassette_funk",   label = "Soul & Funk Mix",     station = "RADIO_17_FUNK",       price = 12, color = "#FF8800" },
+        { name = "cassette_motown", label = "Motown Gold",         station = "RADIO_15_MOTOWN",     price = 12, color = "#9900FF" },
+        { name = "cassette_jazz",   label = "Blue Note Jazz",      station = "RADIO_13_JAZZ",       price = 10, color = "#0066FF" },
+        { name = "cassette_reggae", label = "Island Vibes Reggae", station = "RADIO_12_REGGAE",     price = 10, color = "#00AA44" },
+    },
+
+    -- Emplacement du disquaire (Vespucci Beach — 1987 LA)
+    ShopLocation = vector3(-1272.0, -1256.0, 4.0),
+    ShopBlip     = { sprite = 211, color = 46, scale = 0.8, label = "Ray's Records — Disquaire" },
+
+    -- Job du propriétaire du disquaire
+    ShopJob       = "recordshop",
+    ShopInteract  = 2.0,     -- Distance interaction (m)
+    CommissionPct = 0.80,    -- 80% des ventes vont à la caisse du propriétaire
+}

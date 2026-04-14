@@ -47,4 +47,11 @@ QBShared.Items = {
     ['fish']            = { name='fish',             label='Poisson',             weight=300, type='item', image='fish.png',            useable=true,  shouldClose=true,  combinable=nil, description='Poisson frais pêché' },
     ['burger']          = { name='burger',           label='Hamburger',           weight=200, type='item', image='burger.png',          useable=true,  shouldClose=true,  combinable=nil, description='Nourriture' },
     ['water']           = { name='water',            label='Eau',                 weight=100, type='item', image='water.png',           useable=true,  shouldClose=true,  combinable=nil, description='Bouteille d\'eau' },
+
+    -- Cassettes audio — Disquaire Ray's Records
+    ['cassette_rock']    = { name='cassette_rock',   label='K-DST Classic Rock',   weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette rock classique années 80 — Led Zep, Stones, Eagles' },
+    ['cassette_funk']    = { name='cassette_funk',   label='Soul & Funk Mix',      weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette funk, soul et R&B — James Brown, Earth Wind & Fire' },
+    ['cassette_motown']  = { name='cassette_motown', label='Motown Gold',          weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette Motown — Marvin Gaye, Stevie Wonder, Four Tops' },
+    ['cassette_jazz']    = { name='cassette_jazz',   label='Blue Note Jazz',       weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette jazz — Miles Davis, Coltrane, Monk' },
+    ['cassette_reggae']  = { name='cassette_reggae', label='Island Vibes Reggae',  weight=50, type='item', image='cassette.png', useable=true, shouldClose=true, combinable=nil, description='Cassette reggae — Bob Marley, Peter Tosh, Toots' },
 }

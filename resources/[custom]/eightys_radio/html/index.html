@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Lecteur Cassette</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="deck" class="hidden">
+
+  <!-- Lecteur cassette principal -->
+  <div class="player">
+
+    <div class="brand">RAY'S AUTO-TAPE <span class="model">MODEL C-80</span></div>
+
+    <!-- Fenêtre cassette -->
+    <div class="cassette-window">
+      <div id="tape-vis" class="tape-vis empty">
+        <div class="reel-left">
+          <div id="reel-l" class="reel"></div>
+        </div>
+        <div class="tape-label" id="tape-label">
+          <span id="tape-name">— NO TAPE —</span>
+        </div>
+        <div class="reel-right">
+          <div id="reel-r" class="reel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Afficheur LED -->
+    <div class="display">
+      <div class="display-inner">
+        <span id="display-text">INSERT CASSETTE</span>
+        <div class="vu-meter">
+          <div class="vu-bar" id="vu1"></div>
+          <div class="vu-bar" id="vu2"></div>
+          <div class="vu-bar" id="vu3"></div>
+          <div class="vu-bar" id="vu4"></div>
+          <div class="vu-bar" id="vu5"></div>
+          <div class="vu-bar" id="vu6"></div>
+          <div class="vu-bar" id="vu7"></div>
+          <div class="vu-bar" id="vu8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons -->
+    <div class="controls">
+      <button class="btn btn-rew" onclick="nui('ejectCassette',{})" title="Éjecter">⏏</button>
+      <button class="btn btn-play" id="btn-play" disabled>▶</button>
+      <button class="btn btn-close" onclick="nui('closeDeck',{})">✕</button>
+    </div>
+
+  </div>
+
+  <!-- Liste des cassettes en inventaire -->
+  <div class="cassette-list" id="cassette-list">
+    <div class="list-title">MES CASSETTES</div>
+    <div id="cassette-items"></div>
+  </div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
