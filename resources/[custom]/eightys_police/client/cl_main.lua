@@ -11,6 +11,24 @@ local isCuffed     = false
 local isEscorted   = false
 local escortTarget = nil
 
+-- Thread UNIQUE et persistant pour les contrôles menottes
+-- (évite de créer un nouveau thread à chaque menottage)
+CreateThread(function()
+    while true do
+        if isCuffed then
+            DisableControlAction(0, 24, true)  -- Attaque
+            DisableControlAction(0, 25, true)  -- Corps à corps
+            DisableControlAction(0, 47, true)  -- Arme
+            DisableControlAction(0, 58, true)  -- Snipe
+            DisableControlAction(0, 44, true)  -- Cover
+            DisableControlAction(0, 37, true)  -- Enter vehicle
+            Wait(0)
+        else
+            Wait(500)  -- Veille légère quand pas menotté
+        end
+    end
+end)
+
 -- ================================================================
 -- VÉRIFICATION DU JOB
 -- ================================================================
@@ -89,18 +107,7 @@ RegisterNetEvent('eightys_police:client:cuffPlayer', function()
         duration    = 5000,
     })
 
-    -- Bloquer certaines actions
-    CreateThread(function()
-        while isCuffed do
-            Wait(0)
-            DisableControlAction(0, 24, true)  -- Attaque
-            DisableControlAction(0, 25, true)  -- Attaque corps à corps
-            DisableControlAction(0, 47, true)  -- Arme
-            DisableControlAction(0, 58, true)  -- Snipe
-            DisableControlAction(0, 44, true)  -- Cover
-            DisableControlAction(0, 37, true)  -- Enter vehicle
-        end
-    end)
+    -- Le thread persistant en haut du fichier prend en charge les contrôles
 end)
 
 RegisterNetEvent('eightys_police:client:uncuffPlayer', function()

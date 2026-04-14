@@ -215,22 +215,25 @@ RegisterKeyMapping('hydro', 'Activer/désactiver les hydrauliques', 'keyboard', 
 
 CreateThread(function()
     while true do
-        Wait(0)
-        if not hydraulicsEnabled then goto continue end
-
-        local ped = PlayerPedId()
-        local veh = GetVehiclePedIsIn(ped, false)
-        if veh == 0 or not isLowRider(veh) then hydraulicsEnabled = false; goto continue end
-
-        if IsControlPressed(0, 44) then
-            SetVehicleHandling(veh, "fSuspensionRaise",  0.3)
-        elseif IsControlPressed(0, 38) then
-            SetVehicleHandling(veh, "fSuspensionRaise", -0.3)
+        if not hydraulicsEnabled then
+            Wait(500)  -- veille légère, quasi pas de CPU
         else
-            SetVehicleHandling(veh, "fSuspensionRaise",  0.0)
+            local ped = PlayerPedId()
+            local veh = GetVehiclePedIsIn(ped, false)
+            if veh == 0 or not isLowRider(veh) then
+                hydraulicsEnabled = false
+                Wait(500)
+            else
+                if IsControlPressed(0, 44) then
+                    SetVehicleHandling(veh, "fSuspensionRaise",  0.3)
+                elseif IsControlPressed(0, 38) then
+                    SetVehicleHandling(veh, "fSuspensionRaise", -0.3)
+                else
+                    SetVehicleHandling(veh, "fSuspensionRaise",  0.0)
+                end
+                Wait(0)  -- actif uniquement quand hydrauliques ON
+            end
         end
-
-        ::continue::
     end
 end)
 

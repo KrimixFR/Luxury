@@ -37,10 +37,19 @@ local function sendHudVisible(visible)
 end
 
 -- ================================================================
--- THREAD PRINCIPAL — Mise à jour toutes les 500ms
+-- THREAD PRINCIPAL — Mise à jour toutes les 500ms avec dirty flag
+-- Le NUI n'est contacté que si au moins une valeur a changé
 -- ================================================================
+local lastSent = {}  -- copie des dernières valeurs envoyées
+
+local function hudDirty(new)
+    for k, v in pairs(new) do
+        if lastSent[k] ~= v then return true end
+    end
+    return false
+end
+
 CreateThread(function()
-    -- Attendre que le joueur soit chargé
     while not LocalPlayer.state.isLoggedIn do
         Wait(1000)
     end
@@ -52,63 +61,59 @@ CreateThread(function()
 
         local ped       = PlayerPedId()
         local vehicle   = GetVehiclePedIsIn(ped, false)
-        local isInVeh   = vehicle ~= 0
         local playerPos = GetEntityCoords(ped)
 
-        -- Santé (GTA : 0-200, 0-100 = mort, 100-200 = vie)
-        local rawHealth = GetEntityHealth(ped)
-        local health    = math.max(0, math.floor(((rawHealth - 100) / 100) * 100))
+        -- Santé (GTA : 100 = 0%, 200 = 100%)
+        local health = math.max(0, math.floor(((GetEntityHealth(ped) - 100) / 100) * 100))
+        local armor  = math.floor(GetPedArmour(ped))
 
-        -- Armure
-        local armor = math.floor(GetPedArmour(ped))
+        -- Vitesse MPH (0 hors véhicule)
+        local speedMph = vehicle ~= 0
+            and math.floor(GetEntitySpeed(vehicle) * 2.237)
+            or 0
 
-        -- Vitesse (en MPH)
-        local speedMps = 0
-        if isInVeh then
-            speedMps = GetEntitySpeed(vehicle)
-        end
-        local speedMph = math.floor(speedMps * 2.237)
-
-        -- Niveau de recherche
+        -- Wanted level
         local wanted = GetPlayerWantedLevel(PlayerId())
 
-        -- Argent (via QBCore PlayerData)
+        -- Cash & job (depuis PlayerData en mémoire — pas de réseau)
         local playerData = QBCore.Functions.GetPlayerData()
-        local cash       = 0
-        local jobLabel   = "Chômeur"
+        local cash     = 0
+        local jobLabel = "Chômeur"
         if playerData then
-            if playerData.money then
-                cash = playerData.money["cash"] or 0
-            end
-            if playerData.job then
-                jobLabel = playerData.job.label or "Chômeur"
-            end
+            cash     = (playerData.money and playerData.money["cash"]) or 0
+            jobLabel = (playerData.job   and playerData.job.label)     or "Chômeur"
         end
 
-        -- Rue actuelle
-        local streetHash, crossingHash = GetStreetNameAtCoord(playerPos.x, playerPos.y, playerPos.z)
-        local streetName    = GetStreetNameFromHashKey(streetHash)
-        local crossingName  = GetStreetNameFromHashKey(crossingHash)
-        local displayStreet = streetName
-        if crossingName and crossingName ~= "" then
-            displayStreet = streetName .. " & " .. crossingName
+        -- Rue (lookup uniquement si position a changé de plus de 10m)
+        local street = lastSent.street or ""
+        if not lastSent._pos
+            or #(playerPos - lastSent._pos) > 10.0 then
+            local sh, ch = GetStreetNameAtCoord(playerPos.x, playerPos.y, playerPos.z)
+            local sn     = GetStreetNameFromHashKey(sh)
+            local cn     = GetStreetNameFromHashKey(ch)
+            street = (cn and cn ~= "") and (sn .. " & " .. cn) or sn
+            lastSent._pos = playerPos
         end
 
-        -- Mort ?
         local dead = IsEntityDead(ped)
 
-        hudData = {
-            health  = health,
-            armor   = armor,
-            speed   = speedMph,
-            wanted  = wanted,
-            cash    = cash,
-            job     = jobLabel,
-            street  = displayStreet,
-            dead    = dead,
+        local newData = {
+            health = health,
+            armor  = armor,
+            speed  = speedMph,
+            wanted = wanted,
+            cash   = cash,
+            job    = jobLabel,
+            street = street,
+            dead   = dead,
         }
 
-        sendHudUpdate(hudData)
+        -- N'envoyer au NUI que si au moins un champ a changé
+        if hudDirty(newData) then
+            hudData = newData
+            for k, v in pairs(newData) do lastSent[k] = v end
+            sendHudUpdate(hudData)
+        end
     end
 end)
 
