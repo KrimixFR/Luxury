@@ -608,31 +608,51 @@ Config.Radio = {
 
 -- ================================================================
 -- BOÎTE À GANT
--- Principe : objets cohérents avec le contenu d'une boîte à gant des années 80.
--- Pas d'armes lourdes, pas d'explosifs, pas d'objets de raid.
+-- Règle : tout ce qui tient physiquement dans une boîte à gant.
+--   ✔  Couteau, pistolet, revolver, brass knuckles
+--   ✘  Batte, fusil, shotgun, SMG, crowbar (trop grand / trop long)
 -- ================================================================
 Config.GloveBox = {
     MaxSlots  = 6,       -- Nombre max d'emplacements distincts
     MaxWeight = 4000,    -- Poids total maximum (grammes)
     OpenKey   = 'B',     -- Touche d'ouverture (en véhicule)
 
-    -- Whitelist des objets autorisés
+    -- Whitelist — objets qui rentrent réalistement dans une boîte à gant
     AllowedItems = {
         -- Cassettes
         "cassette_mj", "cassette_rock", "cassette_funk",
         "cassette_motown", "cassette_jazz", "cassette_reggae",
+
         -- Documents & papiers
         "id_card", "drivers_license", "weapon_permit", "fake_id",
         "vehicle_insurance", "police_badge",
-        -- Objets quotidiens cohérents
+
+        -- Objets quotidiens
         "bandage", "cigarettes", "lighter", "pager",
         "beer", "sandwich", "water", "map",
-        -- Arme de poing uniquement (cohérent dans une boîte à gant des années 80)
-        "weapon_pistol", "weapon_combatpistol",
-        "pistol_ammo",
+
+        -- Armes de mêlée compactes (tiennent dans une boîte à gant)
+        "weapon_knife",        -- couteau de poche
+        "weapon_switchblade",  -- cran d'arrêt
+        "weapon_dagger",       -- dague
+        "weapon_knuckle",      -- brass knuckles
+        -- ✘ weapon_bat, weapon_crowbar, weapon_nightstick, weapon_hammer → trop grands
+
+        -- Armes de poing & revolvers (compacts, holstérables)
+        "weapon_pistol",       -- pistolet standard
+        "weapon_combatpistol", -- pistolet compact
+        "weapon_snspistol",    -- mini pistolet
+        "weapon_pistol50",     -- Desert Eagle
+        "weapon_revolver",     -- revolver .357 — très 80s
+        -- ✘ weapon_smg, weapon_microsmg, weapon_pumpshotgun, weapon_rifle → trop grands
+
+        -- Munitions légères
+        "pistol_ammo", "revolver_ammo",
+
         -- Petites substances (thème Los Santos 1987)
         "cocaine_small", "weed_small", "weed_joint",
-        -- Argent
+
+        -- Argent liquide
         "money_bag_small",
     },
 }
