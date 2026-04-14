@@ -205,7 +205,7 @@ local function openPlayerActions(player)
             icon        = "gavel",
             description = "Envoyer au pénitencier",
             onSelect    = function()
-                local input = lib.inputDialog("Emprisonnement de " .. player.name, {
+                local input = lib.inputDialog("Emprisonnement du " .. player.label, {
                     { type = "number", label = "Durée (minutes)", min = 1, max = 30, default = 5 },
                 })
                 if input and input[1] then
@@ -224,7 +224,7 @@ local function openPlayerActions(player)
                 CreateThread(function()
                     lib.progressBar({
                         duration     = 3000,
-                        label        = "Fouille de " .. player.name .. "...",
+                        label        = "Fouille de " .. player.label .. "...",
                         useWhileDead = false,
                         canCancel    = false,
                         disable      = { car = true, combat = true },
@@ -241,7 +241,7 @@ local function openPlayerActions(player)
 
         lib.registerContext({
             id      = 'police_player_actions',
-            title   = string.format('%s  [%.1f m]', player.name, player.dist),
+            title   = string.format('%s  [%.1f m]', player.label, player.dist),
             options = actions,
         })
         lib.showContext('police_player_actions')
@@ -261,15 +261,18 @@ local function openPoliceMenu()
 
     -- ---- Section joueurs proches ----
     local nearby = {}
+    local civilCount = 0
     for _, pid in ipairs(GetActivePlayers()) do
         if pid ~= PlayerId() then
             local tPed = GetPlayerPed(pid)
             local dist = #(coords - GetEntityCoords(tPed))
             if dist <= 15.0 then
+                civilCount = civilCount + 1
                 table.insert(nearby, {
                     localId = pid,
                     srvId   = GetPlayerServerId(pid),
-                    name    = GetPlayerName(pid),
+                    name    = "Civil",   -- Pas de nom réel visible : immersion RP
+                    label   = string.format("Civil #%d", civilCount),
                     dist    = dist,
                 })
             end
@@ -283,7 +286,7 @@ local function openPoliceMenu()
         for _, p in ipairs(nearby) do
             local captured = p  -- capture de la variable pour la closure
             table.insert(options, {
-                title       = captured.name,
+                title       = captured.label,
                 icon        = 'user',
                 description = string.format('%.1f m', captured.dist),
                 onSelect    = function()
