@@ -607,6 +607,37 @@ Config.Radio = {
 }
 
 -- ================================================================
+-- BOÎTE À GANT
+-- Principe : objets cohérents avec le contenu d'une boîte à gant des années 80.
+-- Pas d'armes lourdes, pas d'explosifs, pas d'objets de raid.
+-- ================================================================
+Config.GloveBox = {
+    MaxSlots  = 6,       -- Nombre max d'emplacements distincts
+    MaxWeight = 4000,    -- Poids total maximum (grammes)
+    OpenKey   = 'B',     -- Touche d'ouverture (en véhicule)
+
+    -- Whitelist des objets autorisés
+    AllowedItems = {
+        -- Cassettes
+        "cassette_mj", "cassette_rock", "cassette_funk",
+        "cassette_motown", "cassette_jazz", "cassette_reggae",
+        -- Documents & papiers
+        "id_card", "drivers_license", "weapon_permit", "fake_id",
+        "vehicle_insurance", "police_badge",
+        -- Objets quotidiens cohérents
+        "bandage", "cigarettes", "lighter", "pager",
+        "beer", "sandwich", "water", "map",
+        -- Arme de poing uniquement (cohérent dans une boîte à gant des années 80)
+        "weapon_pistol", "weapon_combatpistol",
+        "pistol_ammo",
+        -- Petites substances (thème Los Santos 1987)
+        "cocaine_small", "weed_small", "weed_joint",
+        -- Argent
+        "money_bag_small",
+    },
+}
+
+-- ================================================================
 -- ÉCONOMIE — TVA & Gouvernement
 -- ================================================================
 Config.Economy = {
