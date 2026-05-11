@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Los Santos 1987 — Personnage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="overlay" class="hidden">
+
+    <!-- Sélection -->
+    <div id="screen-select">
+        <div class="title">LOS SANTOS</div>
+        <div class="subtitle">1 9 8 7</div>
+        <div class="tagline">Gangs · Vice Squad · Crack Cocaine</div>
+        <hr class="sep">
+
+        <div id="char-list">
+            <!-- Rempli par JS -->
+        </div>
+
+        <button class="btn-primary" onclick="showCreate()">CRÉER UN PERSONNAGE</button>
+    </div>
+
+    <!-- Création -->
+    <div id="screen-create" class="hidden">
+        <div class="title">NOUVEAU PERSONNAGE</div>
+        <hr class="sep">
+
+        <div class="field-group">
+            <label>PRÉNOM</label>
+            <input type="text" id="inp-firstname" placeholder="ex: Tony" maxlength="32">
+        </div>
+        <div class="field-group">
+            <label>NOM DE FAMILLE</label>
+            <input type="text" id="inp-lastname" placeholder="ex: Montana" maxlength="32">
+        </div>
+        <div class="field-group">
+            <label>DATE DE NAISSANCE</label>
+            <input type="text" id="inp-birthdate" placeholder="JJ/MM/AAAA" value="01/01/1960" maxlength="10">
+        </div>
+        <div class="field-group">
+            <label>SEXE</label>
+            <select id="inp-gender">
+                <option value="0">Masculin</option>
+                <option value="1">Féminin</option>
+            </select>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-primary" onclick="confirmCreate()">CONFIRMER</button>
+            <button class="btn-cancel"  onclick="backToSelect()">RETOUR</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

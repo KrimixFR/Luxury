@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Los Santos 1987 — HUD</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     LOS SANTOS 1987 — HUD RÉTRO NÉON
+     ============================================================ -->
+
+<div id="hud-container" class="hidden">
+
+    <!-- === PANNEAU GAUCHE : Santé & Armure === -->
+    <div id="panel-left">
+        <!-- Santé -->
+        <div class="stat-block" id="block-health">
+            <div class="stat-label">
+                <span class="stat-icon">♥</span> HP
+            </div>
+            <div class="stat-bar-track">
+                <div class="stat-bar health-bar" id="bar-health"></div>
+            </div>
+            <div class="stat-value" id="val-health">100</div>
+        </div>
+
+        <!-- Armure -->
+        <div class="stat-block" id="block-armor">
+            <div class="stat-label">
+                <span class="stat-icon">◈</span> ARM
+            </div>
+            <div class="stat-bar-track">
+                <div class="stat-bar armor-bar" id="bar-armor"></div>
+            </div>
+            <div class="stat-value" id="val-armor">0</div>
+        </div>
+    </div>
+
+    <!-- === PANNEAU DROIT : Cash & Job === -->
+    <div id="panel-right">
+        <!-- Argent liquide -->
+        <div class="cash-block" id="block-cash">
+            <span class="cash-icon">$</span>
+            <span class="cash-value" id="val-cash">0</span>
+        </div>
+
+        <!-- Emploi -->
+        <div class="job-block" id="block-job">
+            <span class="job-value" id="val-job">Chômeur</span>
+        </div>
+    </div>
+
+    <!-- === BAS CENTRE : Vitesse & Rue === -->
+    <div id="panel-bottom">
+        <!-- Speedomètre -->
+        <div id="speedometer" class="hidden-speed">
+            <div class="speed-value" id="val-speed">0</div>
+            <div class="speed-unit">MPH</div>
+        </div>
+
+        <!-- Rue actuelle -->
+        <div id="street-info">
+            <span id="val-street"></span>
+        </div>
+    </div>
+
+    <!-- === BAS DROITE : Niveau de recherche === -->
+    <div id="wanted-block">
+        <div class="wanted-label">WANTED</div>
+        <div id="wanted-stars">
+            <span class="star" id="star-1">★</span>
+            <span class="star" id="star-2">★</span>
+            <span class="star" id="star-3">★</span>
+            <span class="star" id="star-4">★</span>
+            <span class="star" id="star-5">★</span>
+        </div>
+    </div>
+
+    <!-- Effet CRT scanlines -->
+    <div id="scanlines"></div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

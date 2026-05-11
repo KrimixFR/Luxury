@@ -1,0 +1,328 @@
+/* ================================================================
+   LOS SANTOS 1987 — Pager UI
+   Style Motorola Advisor années 80, écran LCD vert
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+:root {
+    --lcd-green   : #39FF14;
+    --lcd-dark    : #1a1a1a;
+    --device-body : #2c2c2c;
+    --device-dark : #1a1a1a;
+    --screen-bg   : #0d1a0d;
+    --text-green  : #39FF14;
+    --text-dim    : rgba(57, 255, 20, 0.5);
+    --font        : 'VT323', 'Share Tech Mono', monospace;
+    --glow-green  : 0 0 8px #39FF14, 0 0 16px rgba(57, 255, 20, 0.4);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background  : transparent;
+    overflow    : hidden;
+    font-family : var(--font);
+}
+
+/* ================================================================
+   OVERLAY
+   ================================================================ */
+#pager-overlay {
+    position    : fixed;
+    top         : 0; left: 0;
+    width       : 100vw;
+    height      : 100vh;
+    display     : flex;
+    align-items : center;
+    justify-content: center;
+    background  : rgba(0, 0, 0, 0.6);
+    z-index     : 1000;
+}
+
+#pager-overlay.hidden {
+    display : none;
+}
+
+/* ================================================================
+   APPAREIL — Corps du biper
+   ================================================================ */
+#pager-device {
+    background   : var(--device-body);
+    border       : 2px solid #444;
+    border-radius: 12px;
+    width        : 360px;
+    padding      : 16px;
+    box-shadow   :
+        0 0 30px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    position     : relative;
+}
+
+/* ================================================================
+   EN-TÊTE
+   ================================================================ */
+#pager-header {
+    display         : flex;
+    justify-content : space-between;
+    align-items     : center;
+    padding-bottom  : 8px;
+    border-bottom   : 1px solid #333;
+    margin-bottom   : 10px;
+}
+
+#pager-brand {
+    font-size     : 14px;
+    color         : #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#pager-time {
+    font-size  : 18px;
+    color      : var(--lcd-green);
+    text-shadow: var(--glow-green);
+}
+
+.blink {
+    animation: blink-cursor 1s infinite;
+}
+
+@keyframes blink-cursor {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0.4; }
+}
+
+/* ================================================================
+   ÉCRAN LCD
+   ================================================================ */
+#pager-screen {
+    background   : var(--screen-bg);
+    border       : 2px solid #1e3a1e;
+    border-radius: 4px;
+    padding      : 10px;
+    min-height   : 200px;
+    max-height   : 300px;
+    overflow-y   : auto;
+    font-size    : 16px;
+    color        : var(--text-green);
+    text-shadow  : var(--glow-green);
+    scrollbar-width: thin;
+    scrollbar-color: var(--lcd-green) var(--screen-bg);
+}
+
+#pager-screen::-webkit-scrollbar { width: 4px; }
+#pager-screen::-webkit-scrollbar-track { background: var(--screen-bg); }
+#pager-screen::-webkit-scrollbar-thumb { background: var(--lcd-green); }
+
+#screen-title {
+    font-size     : 12px;
+    color         : var(--text-dim);
+    letter-spacing: 4px;
+    margin-bottom : 8px;
+    text-align    : center;
+    border-bottom : 1px solid rgba(57, 255, 20, 0.2);
+    padding-bottom: 4px;
+}
+
+/* ================================================================
+   MESSAGES
+   ================================================================ */
+.no-messages {
+    text-align : center;
+    color      : var(--text-dim);
+    font-size  : 14px;
+    margin-top : 20px;
+}
+
+.message-item {
+    border-bottom : 1px solid rgba(57, 255, 20, 0.15);
+    padding       : 8px 0;
+    cursor        : pointer;
+    transition    : background 0.1s;
+    position      : relative;
+}
+
+.message-item:hover {
+    background : rgba(57, 255, 20, 0.05);
+}
+
+.msg-header {
+    display         : flex;
+    justify-content : space-between;
+    font-size       : 12px;
+    color           : var(--text-dim);
+    margin-bottom   : 4px;
+}
+
+.msg-from {
+    font-size   : 14px;
+    color       : var(--lcd-green);
+    font-weight : bold;
+}
+
+.msg-time {
+    font-size : 12px;
+    color     : var(--text-dim);
+}
+
+.msg-text {
+    font-size : 15px;
+    color     : var(--text-green);
+    word-wrap : break-word;
+}
+
+.msg-delete {
+    position    : absolute;
+    top         : 6px;
+    right       : 0;
+    background  : none;
+    border      : 1px solid rgba(255, 0, 51, 0.4);
+    color       : rgba(255, 0, 51, 0.7);
+    font-family : var(--font);
+    font-size   : 12px;
+    cursor      : pointer;
+    padding     : 1px 5px;
+    border-radius: 2px;
+}
+
+.msg-delete:hover {
+    background : rgba(255, 0, 51, 0.2);
+    color      : #FF0033;
+}
+
+/* ================================================================
+   CONTRÔLES
+   ================================================================ */
+#pager-controls {
+    display    : flex;
+    gap        : 8px;
+    margin-top : 12px;
+}
+
+#pager-controls button {
+    flex        : 1;
+    background  : var(--device-dark);
+    border      : 1px solid #444;
+    border-radius: 4px;
+    color       : #aaa;
+    font-family : var(--font);
+    font-size   : 14px;
+    padding     : 6px 4px;
+    cursor      : pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition  : all 0.15s;
+}
+
+#pager-controls button:hover {
+    background : #333;
+    color      : var(--lcd-green);
+    border-color: var(--lcd-green);
+    text-shadow : var(--glow-green);
+}
+
+#btn-compose:hover { color: #00FFFF; border-color: #00FFFF; text-shadow: 0 0 6px #00FFFF; }
+#btn-close:hover   { color: #FF0033; border-color: #FF0033; text-shadow: 0 0 6px #FF0033; }
+
+/* ================================================================
+   ZONE DE COMPOSITION
+   ================================================================ */
+#compose-panel {
+    margin-top  : 12px;
+    padding     : 10px;
+    background  : var(--screen-bg);
+    border      : 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+#compose-panel.hidden { display: none; }
+
+.compose-label {
+    font-size     : 12px;
+    color         : var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom : 4px;
+    margin-top    : 8px;
+}
+
+#compose-panel input {
+    width       : 100%;
+    background  : #000;
+    border      : 1px solid rgba(57, 255, 20, 0.4);
+    color       : var(--lcd-green);
+    font-family : var(--font);
+    font-size   : 16px;
+    padding     : 4px 8px;
+    outline     : none;
+    border-radius: 2px;
+}
+
+#compose-panel input:focus {
+    border-color: var(--lcd-green);
+    box-shadow  : var(--glow-green);
+}
+
+#compose-buttons {
+    display    : flex;
+    gap        : 8px;
+    margin-top : 10px;
+}
+
+#compose-buttons button {
+    flex        : 1;
+    background  : var(--device-dark);
+    border      : 1px solid #444;
+    color       : #aaa;
+    font-family : var(--font);
+    font-size   : 15px;
+    padding     : 5px;
+    cursor      : pointer;
+    text-transform: uppercase;
+    border-radius : 3px;
+    transition  : all 0.15s;
+}
+
+#compose-buttons button:first-child:hover {
+    background : rgba(0, 255, 255, 0.1);
+    color      : #00FFFF;
+    border-color: #00FFFF;
+}
+
+#compose-buttons button:last-child:hover {
+    background : rgba(255, 0, 51, 0.1);
+    color      : #FF0033;
+    border-color: #FF0033;
+}
+
+/* ================================================================
+   BARRE DE SIGNAL
+   ================================================================ */
+#signal-bar {
+    display         : flex;
+    align-items     : center;
+    justify-content : flex-end;
+    gap             : 3px;
+    margin-top      : 10px;
+    border-top      : 1px solid #333;
+    padding-top     : 6px;
+}
+
+.dot {
+    width       : 6px;
+    height      : 6px;
+    border-radius: 50%;
+    background  : #333;
+}
+
+.dot.active {
+    background  : var(--lcd-green);
+    box-shadow  : var(--glow-green);
+}
+
+.brand-label {
+    font-size     : 11px;
+    color         : #555;
+    letter-spacing: 2px;
+    margin-left   : 8px;
+}

@@ -1,0 +1,54 @@
+# ================================================================
+#  Los Santos 1987 — .gitignore
+# ================================================================
+
+# Binaires FiveM server
+server.exe
+FXServer.exe
+FXServer
+citizen/
+alpine/
+*.dll
+*.pdb
+
+# Dépendances externes (télécharger via cfxr.re ou GitHub)
+resources/[core]/
+resources/[standalone]/
+resources/[qb]/
+resources/[ox]/
+resources/[default]/
+resources/[esx]/
+
+# Configuration locale sensible
+.env
+local.cfg
+server.local.cfg
+*.secret
+
+# Logs
+*.log
+server.log
+fxserver*.log
+
+# Base de données dumps
+*.sql
+*.sql.gz
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Node (pour webpack/yarn)
+node_modules/
+.yarn/

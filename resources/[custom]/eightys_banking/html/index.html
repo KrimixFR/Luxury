@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLEECA ATM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="atm-overlay" class="hidden">
+        <div id="atm-frame">
+            <div id="atm-screen">
+                <!-- Header -->
+                <div id="atm-header">
+                    <div id="atm-logo">FLEECA BANK</div>
+                    <div id="atm-tagline">MEMBER FDIC · EST. 1962</div>
+                </div>
+
+                <div id="atm-divider"></div>
+
+                <!-- Screen: Card Selection -->
+                <div id="screen-cards" class="screen active">
+                    <div class="screen-title">INSÉRER CARTE</div>
+                    <div class="screen-subtitle">Sélectionnez une carte :</div>
+                    <div id="card-list"></div>
+                </div>
+
+                <!-- Screen: PIN Entry -->
+                <div id="screen-pin" class="screen">
+                    <div class="screen-title">SAISIR CODE SECRET</div>
+                    <div id="pin-card-info" class="screen-subtitle"></div>
+                    <div id="pin-display">
+                        <span class="pin-dot" id="dot-1">○</span>
+                        <span class="pin-dot" id="dot-2">○</span>
+                        <span class="pin-dot" id="dot-3">○</span>
+                        <span class="pin-dot" id="dot-4">○</span>
+                    </div>
+                    <div id="keypad">
+                        <button class="key" data-val="1">1</button>
+                        <button class="key" data-val="2">2</button>
+                        <button class="key" data-val="3">3</button>
+                        <button class="key" data-val="4">4</button>
+                        <button class="key" data-val="5">5</button>
+                        <button class="key" data-val="6">6</button>
+                        <button class="key" data-val="7">7</button>
+                        <button class="key" data-val="8">8</button>
+                        <button class="key" data-val="9">9</button>
+                        <button class="key key-clear" id="key-clear">⌫</button>
+                        <button class="key" data-val="0">0</button>
+                        <button class="key key-ok" id="key-ok">OK</button>
+                    </div>
+                    <div id="pin-error" class="error-msg hidden"></div>
+                    <button class="btn-back" id="pin-back">◄ RETOUR</button>
+                </div>
+
+                <!-- Screen: Main Menu -->
+                <div id="screen-menu" class="screen">
+                    <div class="screen-title">BIENVENUE</div>
+                    <div id="menu-card-info" class="screen-subtitle"></div>
+                    <div id="menu-balance" class="balance-display"></div>
+                    <div id="menu-options">
+                        <button class="menu-btn" id="btn-withdraw">
+                            <span class="menu-icon">$</span>
+                            RETRAIT D'ESPÈCES
+                        </button>
+                        <button class="menu-btn" id="btn-balance">
+                            <span class="menu-icon">≡</span>
+                            CONSULTATION SOLDE
+                        </button>
+                    </div>
+                    <button class="btn-back" id="menu-back">◄ FIN DE SESSION</button>
+                </div>
+
+                <!-- Screen: Withdraw Amount -->
+                <div id="screen-withdraw" class="screen">
+                    <div class="screen-title">MONTANT DU RETRAIT</div>
+                    <div id="withdraw-balance" class="screen-subtitle"></div>
+                    <div id="amount-presets">
+                        <button class="preset-btn" data-amount="50">$50</button>
+                        <button class="preset-btn" data-amount="100">$100</button>
+                        <button class="preset-btn" data-amount="200">$200</button>
+                        <button class="preset-btn" data-amount="500">$500</button>
+                        <button class="preset-btn" data-amount="1000">$1 000</button>
+                        <button class="preset-btn" data-amount="2000">$2 000</button>
+                    </div>
+                    <div id="amount-custom">
+                        <div class="screen-subtitle">OU SAISIR UN MONTANT :</div>
+                        <div id="amount-display">$<span id="amount-value">0</span></div>
+                        <div id="amount-keypad">
+                            <button class="key" data-val="1">1</button>
+                            <button class="key" data-val="2">2</button>
+                            <button class="key" data-val="3">3</button>
+                            <button class="key" data-val="4">4</button>
+                            <button class="key" data-val="5">5</button>
+                            <button class="key" data-val="6">6</button>
+                            <button class="key" data-val="7">7</button>
+                            <button class="key" data-val="8">8</button>
+                            <button class="key" data-val="9">9</button>
+                            <button class="key key-clear" id="amount-clear">⌫</button>
+                            <button class="key" data-val="0">0</button>
+                            <button class="key key-ok" id="amount-ok">OK</button>
+                        </div>
+                    </div>
+                    <div id="withdraw-error" class="error-msg hidden"></div>
+                    <button class="btn-back" id="withdraw-back">◄ RETOUR</button>
+                </div>
+
+                <!-- Screen: Result -->
+                <div id="screen-result" class="screen">
+                    <div id="result-icon"></div>
+                    <div id="result-title" class="screen-title"></div>
+                    <div id="result-message"></div>
+                    <div id="result-new-balance"></div>
+                    <button class="menu-btn" id="result-continue">CONTINUER</button>
+                </div>
+
+                <!-- Footer -->
+                <div id="atm-divider"></div>
+                <div id="atm-footer">
+                    <span>APPUYEZ SUR [ESC] POUR ANNULER</span>
+                </div>
+            </div>
+
+            <!-- CRT scanlines overlay -->
+            <div id="scanlines"></div>
+            <!-- CRT glow -->
+            <div id="crt-glow"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

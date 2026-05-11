@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>ox_lib UI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     NOTIFICATIONS
+     ============================================================ -->
+<div id="notify-container"></div>
+
+<!-- ============================================================
+     PROGRESS BAR
+     ============================================================ -->
+<div id="progress-wrapper" class="hidden">
+    <div id="progress-label"></div>
+    <div id="progress-track">
+        <div id="progress-fill"></div>
+    </div>
+    <div id="progress-hint">BACKSPACE pour annuler</div>
+</div>
+
+<!-- ============================================================
+     CONTEXT MENU
+     ============================================================ -->
+<div id="context-overlay" class="hidden">
+    <div id="context-box">
+        <div id="context-title"></div>
+        <div id="context-options"></div>
+        <button id="context-close-btn" onclick="closeContext()">Fermer (ESC)</button>
+    </div>
+</div>
+
+<!-- ============================================================
+     INPUT DIALOG
+     ============================================================ -->
+<div id="input-overlay" class="hidden">
+    <div id="input-box">
+        <div id="input-title"></div>
+        <div id="input-fields"></div>
+        <div id="input-buttons">
+            <button id="btn-input-submit" onclick="submitInput()">Confirmer</button>
+            <button id="btn-input-cancel" onclick="cancelInput()">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     ALERT DIALOG
+     ============================================================ -->
+<div id="alert-overlay" class="hidden">
+    <div id="alert-box">
+        <div id="alert-header"></div>
+        <div id="alert-content"></div>
+        <div id="alert-buttons">
+            <button id="btn-alert-confirm" onclick="confirmAlert()">Confirmer</button>
+            <button id="btn-alert-cancel" onclick="cancelAlert()">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

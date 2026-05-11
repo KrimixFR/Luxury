@@ -1,0 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: transparent; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
+
+.hidden { display: none !important; }
+
+#deck {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  user-select: none;
+}
+
+/* ── Lecteur principal ── */
+.player {
+  background: linear-gradient(160deg, #2a2a2a 0%, #1a1a1a 100%);
+  border: 2px solid #444;
+  border-radius: 6px;
+  padding: 14px 16px 12px;
+  width: 320px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.brand {
+  font-family: 'VT323', monospace;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.model { color: #FF7700; }
+
+/* ── Fenêtre cassette ── */
+.cassette-window {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+.tape-vis {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.tape-vis.empty .reel-left,
+.tape-vis.empty .reel-right { opacity: 0.2; }
+
+.reel-left, .reel-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.reel {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid #555;
+  background: radial-gradient(circle at 50% 50%, #333 30%, transparent 31%),
+              repeating-conic-gradient(#444 0deg 30deg, #2a2a2a 30deg 60deg);
+  position: relative;
+  transition: border-color 0.3s;
+}
+.reel::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #222;
+  border: 2px solid #666;
+}
+
+/* Rotation animée quand lecture */
+.playing .reel {
+  animation: spin-l 2s linear infinite;
+  border-color: #FF7700;
+}
+.playing .reel-right .reel {
+  animation: spin-r 3.1s linear infinite;
+}
+
+@keyframes spin-l { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes spin-r { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+/* Label de la cassette */
+.tape-label {
+  flex: 1;
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: 3px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, border-color 0.3s;
+}
+#tape-name {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #666;
+  letter-spacing: 1px;
+  text-align: center;
+  line-height: 1.3;
+}
+.playing .tape-label {
+  border-color: currentColor;
+}
+
+/* ── Afficheur LED ── */
+.display {
+  background: #0a0a0a;
+  border: 1px solid #222;
+  border-radius: 3px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+.display-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#display-text {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: #FF7700;
+  text-shadow: 0 0 6px rgba(255,119,0,0.6);
+  letter-spacing: 2px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 160px;
+}
+
+/* VU-mètre */
+.vu-meter {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 20px;
+}
+.vu-bar {
+  width: 4px;
+  background: #FF7700;
+  border-radius: 1px;
+  opacity: 0.15;
+  transition: height 0.1s, opacity 0.1s;
+}
+
+/* ── Slider de volume ── */
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+.vol-label {
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  color: #888;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+  width: 26px;
+}
+.vol-value {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #FF7700;
+  text-shadow: 0 0 4px rgba(255,119,0,0.5);
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.vol-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: #333;
+  outline: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #FF7700;
+  box-shadow: 0 0 6px rgba(255,119,0,0.7);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.vol-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.vol-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #FF7700;
+  border: none;
+  cursor: pointer;
+}
+.vol-slider:disabled { cursor: default; }
+
+/* ── Boutons ── */
+.controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.btn {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  padding: 4px 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: #aaa;
+  transition: all 0.12s;
+  letter-spacing: 1px;
+}
+.btn:hover { background: #383838; color: #fff; border-color: #777; }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.3; cursor: default; }
+.btn-rew { color: #FF7700; border-color: #FF7700; }
+.btn-rew:hover { background: rgba(255,119,0,0.15); }
+.btn-close { color: #FF3333; border-color: #FF3333; font-size: 14px; }
+.btn-close:hover { background: rgba(255,51,51,0.15); }
+
+/* ── Liste des cassettes ── */
+.cassette-list {
+  background: rgba(15,15,15,0.95);
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 10px;
+  width: 320px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.cassette-list::-webkit-scrollbar { width: 4px; }
+.cassette-list::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+
+.list-title {
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  color: #555;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #222;
+}
+
+.cassette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  margin-bottom: 4px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.12s;
+  background: rgba(255,255,255,0.02);
+}
+.cassette-item:hover { background: rgba(255,255,255,0.06); border-color: #444; }
+.cassette-item.active { border-color: var(--cc); background: rgba(255,255,255,0.04); }
+
+.cassette-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cassette-label {
+  flex: 1;
+  font-size: 13px;
+  color: #ccc;
+}
+.cassette-qty {
+  font-size: 11px;
+  color: #555;
+}
+.cassette-playing-badge {
+  font-size: 10px;
+  color: #FF7700;
+  letter-spacing: 1px;
+}
+
+.no-cassettes {
+  font-size: 13px;
+  color: #444;
+  text-align: center;
+  padding: 16px 0;
+  letter-spacing: 2px;
+}

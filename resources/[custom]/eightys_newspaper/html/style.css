@@ -1,0 +1,231 @@
+/* ================================================================
+   LOS SANTOS CHRONICLE — Style journal papier 1987
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IM+Fell+English:ital@0;1&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IM Fell English', 'Times New Roman', serif;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.hidden { display: none !important; }
+
+/* ================================================================
+   OVERLAY
+   ================================================================ */
+#overlay {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    background: rgba(0, 0, 0, 0.75);
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ================================================================
+   JOURNAL
+   ================================================================ */
+#newspaper {
+    background: #f4edd8;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    width: 700px;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 28px 36px 20px;
+    box-shadow:
+        3px 3px 0 #b8a87a,
+        6px 6px 0 #a09060,
+        0 10px 40px rgba(0,0,0,0.5);
+    border: 1px solid #8b7340;
+    color: #111;
+    filter: sepia(12%);
+    scrollbar-width: thin;
+    scrollbar-color: #8b7340 #f4edd8;
+}
+
+/* ================================================================
+   EN-TÊTE
+   ================================================================ */
+#paper-header {
+    text-align: center;
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+}
+
+#paper-motto {
+    font-size: 10px;
+    font-style: italic;
+    color: #555;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+#paper-title {
+    font-family: 'UnifrakturMaguntia', 'Times New Roman', serif;
+    font-size: 52px;
+    color: #0a0a0a;
+    line-height: 1;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+}
+
+#paper-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    color: #333;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding: 3px 0;
+    margin: 6px 0 3px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#paper-price {
+    font-size: 9px;
+    color: #555;
+    text-align: right;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+/* ================================================================
+   RÈGLES
+   ================================================================ */
+.rule-thick {
+    border: none;
+    border-top: 3px solid #111;
+    margin: 8px 0;
+}
+
+.rule-thin {
+    border: none;
+    border-top: 1px solid #aaa;
+    margin: 12px 0 8px;
+}
+
+/* ================================================================
+   ARTICLES
+   ================================================================ */
+#articles-container {
+    columns: 2;
+    column-gap: 24px;
+    column-rule: 1px solid #bbb;
+}
+
+.article {
+    break-inside: avoid;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.article:last-child { border-bottom: none; }
+
+.article-type {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #666;
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 3px;
+}
+
+.article-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #0a0a0a;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #333;
+}
+
+.article-body {
+    font-size: 11px;
+    color: #1a1a1a;
+    line-height: 1.6;
+    text-align: justify;
+    hyphens: auto;
+}
+
+.article-location {
+    font-size: 9px;
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+    text-align: right;
+}
+
+/* Première une — article pleine largeur */
+.article-featured {
+    column-span: all;
+    border-bottom: 2px double #333;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+}
+
+.article-featured .article-headline {
+    font-size: 26px;
+}
+
+.article-featured .article-body {
+    font-size: 12px;
+    columns: 2;
+    column-gap: 20px;
+}
+
+/* ================================================================
+   PIED DE PAGE
+   ================================================================ */
+#paper-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+}
+
+#footer-text {
+    font-size: 8px;
+    color: #888;
+    font-style: italic;
+}
+
+#btn-close {
+    background: none;
+    border: 1px solid #333;
+    font-family: 'IM Fell English', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 5px 16px;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.15s;
+}
+
+#btn-close:hover {
+    background: #222;
+    color: #f4edd8;
+}
